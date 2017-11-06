@@ -94,7 +94,7 @@ int main(){
     //Since the variable keypress was reused multiple times, do-
     //while was used in order to prevent a leftover keypress value
     //from preventing a while loop from running
-    printf("Your name is %s and you are %s. You walk over to a nearby pond and look at your reflection. What do you see?\n", protagonist.name, protagonist.gender);
+    printf("You are a %s named %s. You walk over to a nearby pond and look at your reflection. What do you see?\n", protagonist.gender, protagonist.name);
     do {
         printf("1. Human    2. Elf    3. Ork\n");
         scanf(" %c", &keypress);
