@@ -1,1 +1,1 @@
-goblinStats.txt direBoarStats.txt slimeStats.txt
+fGoblinStats.txt fBoarStats.txt fSlimeStats.txt fEvilFairyStats.txt fImpStats.txt
