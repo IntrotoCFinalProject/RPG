@@ -100,7 +100,7 @@ int main(){
             default:
                 printf("Say again?\n");
         }
-    } while( !( (keypress == '1') || (keypress == '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
 
     //Since the variable keypress was reused multiple times, do-
     //while was used in order to prevent a leftover keypress value
@@ -126,7 +126,7 @@ int main(){
             default:
                 printf("Say again?\n");
         }
-    } while( !( (keypress == '1') || ( (keypress == '2') || (keypress == '3') ) ) );
+    } while( !( (keypress >= '1') && (keypress <= '3')  ) );
 
     printf("You are an %s. Before waking up here you recall that you were a...\n", protagonist.race);
     do {
@@ -149,7 +149,7 @@ int main(){
             default:
                 printf("Say again?\n");
         }
-    } while( !( ( (keypress == '1') ||  (keypress == '2') ) || ( (keypress == '3') || (keypress == '4') ) ) );
+    } while( !( ( (keypress >= '1') && (keypress <= '4') ) ) );
 
     do {
         printf("You are in a thick forest. What do you do?\n");
@@ -166,7 +166,7 @@ int main(){
                 }
                 else if (random >= 50)
                 {
-                    printf("You found a hidden path deep into the forest\n What will you do?\n");
+                    printf("You found a hidden path deep into the forest\nWhat will you do?\n");
 
                     printf("1. Follow the path    2. Turn back \n");
                     scanf(" %c", &insideKeypress);
@@ -175,7 +175,7 @@ int main(){
                         case '1':
                             break;
                         case '2':
-                            printf("You turn around and follow the path you came down\n");
+                            printf("You turn around and retrace your steps.\n");
                             break;
                     }
                 }
@@ -194,7 +194,7 @@ int main(){
             default:
                 printf("Say again?\n");
         }
-    } while( !( (keypress == '1') || (keypress == '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
 
     return 0;
 }
