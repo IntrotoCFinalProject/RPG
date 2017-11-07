@@ -21,22 +21,30 @@ void encounterMonster(){
     char possibleMonsters[MAX_MONSTERS_IN_AREA][50];
     int i, testVar;
 
+    //We will later use a random number generator so it is important to initialize this
+    srand(time(0));
+
+    //This opens up a text document that contains the names of the text files of all possible monsters in a given area
     monsterFile = fopen("possibleMonstersInForest.txt", "r");
+
+    //This runs a loop that records the name of each text files inside of the array
     for(i = 0; i < MAX_MONSTERS_IN_AREA; i++){
         fscanf(monsterFile, "%s", possibleMonsters[i]);
         printf("%s\n", possibleMonsters[i]);
     }
+    //Now we are done with this particular file so we must close it
     fclose(monsterFile);
 
-    srand(time(0));
-
+    //Now that each array is filled with the names of each monster's text file,
+    //we use a randomizer to pick a monster out of the possible files
     monsterStats = fopen(possibleMonsters[ (rand() % MAX_MONSTERS_IN_AREA) ], "r");
+
+    //Here we print out the stats of the monster which is currently used for testing purposes
     fscanf(monsterStats, "%d", &testVar);
     printf("%d", testVar);
 
+    //Again, we are done with the file and finish by closing it
     fclose(monsterStats);
-
-
 }
 
 //Character information struct is used to set the base attributes
