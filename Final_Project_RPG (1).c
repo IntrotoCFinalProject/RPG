@@ -21,9 +21,6 @@ void encounterMonster(){
     char possibleMonsters[MAX_MONSTERS_IN_AREA][50];
     int i, testVar;
 
-    //We will later use a random number generator so it is important to initialize this
-    srand(time(0));
-
     //This opens up a text document that contains the names of the text files of all possible monsters in a given area
     monsterFile = fopen("possibleMonstersInForest.txt", "r");
 
@@ -47,8 +44,8 @@ void encounterMonster(){
 }
 
 void exploreForest(){
-    int  insideKeypress, random;
-    srand(time(0));
+    int random;
+    char insideKeypress;
 
     random = (rand() % 100);
     if (random >= 75){
@@ -56,24 +53,28 @@ void exploreForest(){
     }
     else if (random >= 50){
         printf("You found a hidden path deep into the forest\nWhat will you do?\n");
+        do{
+            printf("1. Follow the path    2. Turn back\n");
+            scanf(" %c", &insideKeypress);
 
-        printf("1. Follow the path    2. Turn back \n");
-        scanf(" %c", &insideKeypress);
-
-        switch(insideKeypress){
+            switch(insideKeypress){
             case '1':
                 printf("You venture further down the path and find yourself lost in a strange land.\n");
                 break;
             case '2':
                 printf("You turn around and retrace your steps.\n");
                 break;
-        }
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
     else if (random >= 25){
         encounterMonster();
     }
     else{
-    printf("You found nothing and keep moving.\n");
+        printf("You found nothing and keep moving.\n");
     }
 
 }
@@ -105,7 +106,7 @@ int main(){
     charInformation protagonist, currentEnemy;
     char possibleMonsters[100];
     strcpy(possibleMonsters, "goblinStats.txt");
-    char keypress, insideKeypress;
+    char keypress;
     int  random;
 
     //Here we set up the randomizer for later in the program
@@ -184,20 +185,22 @@ int main(){
     } while( !( ( (keypress >= '1') && (keypress <= '4') ) ) );
 
     do {
-        printf("You are in a thick forest. What do you do?\n");
-        printf("1. Explore    2. Check Stats\n");
+        while(1){
+            printf("You are in a thick forest. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
 
-        scanf(" %c", &keypress);
+            scanf(" %c", &keypress);
 
-        switch(keypress){
-            case '1':
-                exploreForest();
-                break;
-            case '2':
+            switch(keypress){
+                case '1':
+                    exploreForest();
+                    break;
+                case '2':
 
-                break;
-            default:
-                printf("Say again?\n");
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
         }
     } while( !( (keypress >= '1') && (keypress <= '2') ) );
 
