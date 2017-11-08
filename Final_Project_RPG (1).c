@@ -9,7 +9,7 @@
 
 #define MAX_MONSTERS_IN_AREA 5
 
-/*void explorePossibilites(){
+/*void explorePossibilities(){
 
 }*/
 
@@ -44,6 +44,38 @@ void encounterMonster(){
 
     //Again, we are done with the file and finish by closing it
     fclose(monsterStats);
+}
+
+void exploreForest(){
+    int  insideKeypress, random;
+    srand(time(0));
+
+    random = (rand() % 100);
+    if (random >= 75){
+        printf("You found some loot!\n");
+    }
+    else if (random >= 50){
+        printf("You found a hidden path deep into the forest\nWhat will you do?\n");
+
+        printf("1. Follow the path    2. Turn back \n");
+        scanf(" %c", &insideKeypress);
+
+        switch(insideKeypress){
+            case '1':
+                printf("You venture further down the path and find yourself lost in a strange land.\n");
+                break;
+            case '2':
+                printf("You turn around and retrace your steps.\n");
+                break;
+        }
+    }
+    else if (random >= 25){
+        encounterMonster();
+    }
+    else{
+    printf("You found nothing and keep moving.\n");
+    }
+
 }
 
 //Character information struct is used to set the base attributes
@@ -159,34 +191,7 @@ int main(){
 
         switch(keypress){
             case '1':
-                random = (rand() % 100);
-                if (random >= 75)
-                {
-                    printf("You found some loot!\n");
-                }
-                else if (random >= 50)
-                {
-                    printf("You found a hidden path deep into the forest\nWhat will you do?\n");
-
-                    printf("1. Follow the path    2. Turn back \n");
-                    scanf(" %c", &insideKeypress);
-
-                    switch(insideKeypress){
-                        case '1':
-                            break;
-                        case '2':
-                            printf("You turn around and retrace your steps.\n");
-                            break;
-                    }
-                }
-                else if (random >= 25)
-                {
-                    encounterMonster();
-                }
-                else
-                {
-                    printf("You found nothing and keep moving.\n");
-                }
+                exploreForest();
                 break;
             case '2':
 
