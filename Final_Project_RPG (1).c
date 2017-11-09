@@ -43,14 +43,19 @@ void encounterMonster(){
     fclose(monsterStats);
 }
 
+//This function is used whenever the player chooses the option to explore, in this case, the forest
 void exploreForest(){
     int random;
     char insideKeypress;
 
+    //We use a random number to determine the outcome of each exploration
     random = (rand() % 100);
+
+    //If the number rolls 75 or above, the player finds loot
     if (random >= 75){
         printf("You found some loot!\n");
     }
+    //If the number is between 50 and 75, the player advances
     else if (random >= 50){
         printf("You found a hidden path deep into the forest\nWhat will you do?\n");
         do{
@@ -70,9 +75,11 @@ void exploreForest(){
 
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
+    //Between 25 and 49, the player fights a monster
     else if (random >= 25){
         encounterMonster();
     }
+    //If the number is between 0 and 24, nothing happens
     else{
         printf("You found nothing and keep moving.\n");
     }
@@ -185,7 +192,7 @@ int main(){
     } while( !( ( (keypress >= '1') && (keypress <= '4') ) ) );
 
     do {
-        while(1){
+        do{
             printf("You are in a thick forest. What do you do?\n");
             printf("1. Explore    2. Check Stats\n");
 
@@ -201,7 +208,7 @@ int main(){
                 default:
                     printf("Say again?\n");
             }
-        }
+        }while(keypress == '1');
     } while( !( (keypress >= '1') && (keypress <= '2') ) );
 
     return 0;
