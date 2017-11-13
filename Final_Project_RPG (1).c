@@ -11,20 +11,20 @@
 #define MAX_NUM_MONSTER_STATS 2
 
 typedef struct{
-    char name[30];
-    char gender[6];
-    char job[10];
-    char race[20];
-    int level;
-    int experience;
-    int gold;
-    int physicalPower;
-    int speed;
-    int hpMax;
-    int hpCurrent;
-    int magicalPower;
-    int maxMana;
-    int currentMana;
+    char name[30];      //This will save the user's declared name
+    char gender[7];     //This saves their gender
+    char race[20];      //This saves their race which affects their base stats
+    char job[10];       //Their chosen job further affects their stats
+    int  level;         //This will keep track of their level which will increase their stats the higher it is
+    int  experience;    //The experience will be used to keep track of their progress to leveling up
+    int  gold;          //
+    int  physicalPower; //This stat will keep track of the damage done through melee
+    int  speed;         //This stat tracks their speed to see who begins the fight
+    int  maxHP;         //This stat tracks the maximum health that the player can have
+    int  currentHP;     //This stat checks the current health which will differ from max whenever the player is hurt
+    int  magicalPower;  //This stat keeps track of magical damage
+    int  maxMana;       //This stat controls the maximum mana the player can have
+    int  currentMana;   //This stat tracks the player's current mana which changes after using magic
 } charInformation;
 
 //void allocateProtagStats(int hpMod);
