@@ -26,20 +26,24 @@ typedef struct{
     int magicalPower;  //This stat keeps track of magical damage
     int maxMana;       //This stat controls the maximum mana the player can have
     int currentMana;   //This stat tracks the player's current mana which changes after using magic
-    int statIndex;    //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
+    int statIndex;     //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
 } charInformation;
 
+//This function will be used to increase the stats of the player each time they gain a level
 void protagLevelUp(charInformation* protagonist);
 
+//This function randomizes which monster a player will encounter, depending on the area
 void encounterMonster();
+
+//This function will be used whenever the player checks their stats
+void checkStats();
 
 //This function is used whenever the player chooses the option to explore, in this case, the forest
 void exploreForest();
 
 //Character information struct is used to set the base attributes
 //and information of various entities.
-//NOTE: all variables for characterInformation may not be used for a
-//given variable.
+//NOTE: all variables for characterInformation may not be used for a given variable.
 
 int main(){
     //The protagonist variable is the character the plays controls.
@@ -81,7 +85,7 @@ int main(){
     printf("You are a %s named %s. You walk over to a nearby pond and look at your reflection. What do you see?\n", protagonist.gender, protagonist.name);
     do {
         printf("1. Human    2. Elf    3. Ork\n");
-        scanf(" %c", &keypress);
+        scanf(" %c", &keypress);//The max length for the string is 80 characters plus a space for the /0
 
         //Player race and starting hp and mana are set
         switch(keypress){
@@ -157,7 +161,7 @@ int main(){
                     }
                     break;
                 case '2':
-                        printf("Your current stats are: \n");
+                    checkStats();
                     break;
                 default:
                     printf("Say again?\n");
@@ -185,6 +189,15 @@ void protagLevelUp(charInformation* protagonist){
     currentPosition = ftell(statsFile);
 
     fclose(statsFile);
+}
+
+void checkStats(charInformation* protagonist){
+    FILE *playerStats;
+
+    playerStats = fopen("playerStats.txt", "r");
+
+    printf("You are a named.\n");
+    printf("Your current health is .\n");
 }
 
 void exploreForest(){
