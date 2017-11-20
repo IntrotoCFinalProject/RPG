@@ -12,25 +12,25 @@
 #define MAX_NUM_PROTAG_STATS_FROM_FILE 5
 
 typedef struct{
-    char name[30];     //This will save the user's declared name
-    char gender[7];    //This saves their gender
-    char race[20];     //This saves their race which affects their base stats
-    char job[10];      //Their chosen job further affects their stats
-    int level;         //This will keep track of their level which will increase their stats the higher it is
-    int experience;    //The experience will be used to keep track of their progress to leveling up
-    int gold;          //
-    int physicalPower; //This stat will keep track of the damage done through melee
-    int speed;         //This stat tracks their speed to see who begins the fight
-    int maxHP;         //This stat tracks the maximum health that the player can have
-    int currentHP;     //This stat checks the current health which will differ from max whenever the player is hurt
-    int magicalPower;  //This stat keeps track of magical damage
-    int maxMana;       //This stat controls the maximum mana the player can have
-    int currentMana;   //This stat tracks the player's current mana which changes after using magic
-    int statIndex;     //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
+    char name[30];      //This will save the user's declared name
+    char gender[7];     //This saves their gender
+    char race[20];      //This saves their race which affects their base stats
+    char job[10];       //Their chosen job further affects their stats
+    int  level;         //This will keep track of their level which will increase their stats the higher it is
+    int  experience;    //The experience will be used to keep track of their progress to leveling up
+    int  gold;          //
+    int  physicalPower; //This stat will keep track of the damage done through melee
+    int  magicalPower;  //This stat keeps track of magical damage
+    int  speed;         //This stat tracks their speed to see who begins the fight
+    int  maxHP;         //This stat tracks the maximum health that the player can have
+    int  currentHP;     //This stat checks the current health which will differ from max whenever the player is hurt
+    int  maxMana;       //This stat controls the maximum mana the player can have
+    int  currentMana;   //This stat tracks the player's current mana which changes after using magic
+    int  statIndex;     //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
 } charInformation;
 
 //This function will be used to increase the stats of the player each time they gain a level
-void protagLevelUp(charInformation* protagonist);
+void protagLevelUp(charInformation *protagonist, charInformation protagonist);
 
 //This function randomizes which monster a player will encounter, depending on the area
 void encounterMonster();
@@ -51,6 +51,8 @@ int main(){
     //should edit only the protagonist variable.
     charInformation protagonist;
     protagonist.level = 0; protagonist.experience = 0; protagonist.gold = 0;
+    protagonist.physicalPower = 0; protagonist.magicalPower = 0; protagonist.speed;
+    protagonist.maxHP = 0; protagonist.maxMana = 0;
     char keypress;
 
     //Here we set up the randomizer for later in the program
@@ -115,25 +117,25 @@ int main(){
     //Player selects their job/class
     printf("You are an %s. Before waking up here you recall that you were a...\n", protagonist.race);
     do {
-        printf("1. Paladin    2. Mage   3. Archer    4. Berserker\n");
+        printf("1. Paladin    2. Berserker   3. Mage    4. Cleric\n");
         scanf(" %c", &keypress);
 
         switch(keypress){
             case '1':
                 strcpy(protagonist.job, "Paladin");
-                protagonist.statIndex = 0;
+                protagonist.statIndex = 1;
                 break;
             case '2':
-                strcpy(protagonist.job, "Mage");
-                protagonist.statIndex = 6;
+                strcpy(protagonist.job, "Berserker");
+                protagonist.statIndex = 2;
                 break;
             case '3':
-                strcpy(protagonist.job, "Archer");
-                protagonist.statIndex = 12;
+                strcpy(protagonist.job, "Mage");
+                protagonist.statIndex = 3;
                 break;
             case '4':
-                strcpy(protagonist.job, "Berserker");
-                protagonist.statIndex = 18;
+                strcpy(protagonist.job, "Cleric");
+                protagonist.statIndex = 4;
                 break;
             default:
                 printf("Say again?\n");
@@ -141,7 +143,8 @@ int main(){
     } while( !( ( (keypress >= '1') && (keypress <= '4') ) ) );
 
     //Once Player has selected their class, they level up from 0 to 1, setting their initial stats.
-    protagLevelUp(&protagonist);
+    protagLevelUp(&protagonist, protagonist);
+    printf("Phys Power is %d\n", protagonist.physicalPower);
 
     //Main gameplay loop, where player either encounters monsters to fight
     //or explores the world.
@@ -172,21 +175,36 @@ int main(){
     return 0;
 }
 
-void protagLevelUp(charInformation* protagonist){
-    int mod, currentPosition;
+void protagLevelUp(charInformation *protagonist, charInformation protagonist){
+    int mod[20];
+    int currentPosition, i;
     FILE *statsFile;
 
     statsFile = fopen("jobStatsPerLevel.txt", "r");
-    fseek(statsFile, 2 * protagonist->statIndex, SEEK_SET);
+    fseek(statsFile, **protagonist.statIndex, SEEK_SET);
 
     currentPosition = ftell(statsFile);
     printf("Current Position is: %d\n", currentPosition);
-    //fseek(statsFile, 18, SEEK_SET);
 
-    fscanf(statsFile, "%d", &mod);
-    printf("The mod is: %d \n", mod);
+    for(i = 0; i < 20; i++){
+        fscanf(statsFile, "%d", &mod[i]);
+    }
 
-    currentPosition = ftell(statsFile);
+    if(currentPosition == 1)
+    {
+        protagonist->physicalPower = mod[0] + var.physicalPower;
+        protagonist->magicalPower  += mod[1];
+        protagonist->speed         += mod[2];
+        protagonist->maxHP         += mod[3];
+        protagonist->maxMana       += mod[4];
+
+        printf("Phys Power is %d\n", var.physicalPower);
+    }
+
+    /*fscanf(statsFile, "%d", &mod[currentPosition]);
+    printf("The mod is: %d\n", mod[currentPosition]);
+
+    currentPosition = ftell(statsFile);*/
 
     fclose(statsFile);
 }
