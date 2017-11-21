@@ -30,13 +30,13 @@ typedef struct{
 } charInformation;
 
 //This function will be used to increase the stats of the player each time they gain a level
-void protagLevelUp(charInformation *protagonist, charInformation protagonist);
+void protagLevelUp(charInformation *level);
 
 //This function randomizes which monster a player will encounter, depending on the area
 void encounterMonster();
 
 //This function will be used whenever the player checks their stats
-void checkStats();
+void checkStats(charInformation *stats);
 
 //This function is used whenever the player chooses the option to explore, in this case, the forest
 void exploreForest();
@@ -143,11 +143,9 @@ int main(){
     } while( !( ( (keypress >= '1') && (keypress <= '4') ) ) );
 
     //Once Player has selected their class, they level up from 0 to 1, setting their initial stats.
-    protagLevelUp(&protagonist, protagonist);
-    printf("Phys Power is %d\n", protagonist.physicalPower);
+    protagLevelUp(&protagonist);
 
-    //Main gameplay loop, where player either encounters monsters to fight
-    //or explores the world.
+    //Main gameplay loop, where player either encounters monsters to fight or explores the world.
     do {
         do{
             printf("You are in a thick forest. What do you do?\n");
@@ -164,59 +162,81 @@ int main(){
                     }
                     break;
                 case '2':
-                    checkStats();
+                    checkStats(&protagonist);
                     break;
                 default:
                     printf("Say again?\n");
             }
-        }while(keypress == '1');
+        }while(keypress == '1'|| keypress == '2');
     } while( !( (keypress >= '1') && (keypress <= '2') ) );
 
     return 0;
 }
 
-void protagLevelUp(charInformation *protagonist, charInformation protagonist){
-    int mod[20];
-    int currentPosition, i;
+void checkStats(charInformation *stats){
+
+    printf("You are %s %s named %s, and your role is %s.\n", stats->gender, stats->race, stats->name, stats->job);
+}
+
+void protagLevelUp(charInformation *level){
+    charInformation temp;
+    int   mod[20];
+    int   role, i;
     FILE *statsFile;
 
     statsFile = fopen("jobStatsPerLevel.txt", "r");
-    fseek(statsFile, **protagonist.statIndex, SEEK_SET);
 
-    currentPosition = ftell(statsFile);
-    printf("Current Position is: %d\n", currentPosition);
+    role = level->statIndex;
+    printf("Gender is: %s\n", level->gender);
 
     for(i = 0; i < 20; i++){
         fscanf(statsFile, "%d", &mod[i]);
     }
 
-    if(currentPosition == 1)
+    if(role == 1)
     {
-        protagonist->physicalPower = mod[0] + var.physicalPower;
-        protagonist->magicalPower  += mod[1];
-        protagonist->speed         += mod[2];
-        protagonist->maxHP         += mod[3];
-        protagonist->maxMana       += mod[4];
+        temp.physicalPower = mod[0] + level->physicalPower;
+        temp.magicalPower  = mod[1] + level->magicalPower;
+        temp.speed         = mod[2] + level->speed;
+        temp.maxHP         = mod[3] + level->maxHP;
+        temp.maxMana       = mod[4] + level->maxMana;
 
-        printf("Phys Power is %d\n", var.physicalPower);
+        *level = temp;
     }
+    else if(role == 2)
+    {
+        temp.physicalPower = mod[5] + level->physicalPower;
+        temp.magicalPower  = mod[6] + level->magicalPower;
+        temp.speed         = mod[7] + level->speed;
+        temp.maxHP         = mod[8] + level->maxHP;
+        temp.maxMana       = mod[9] + level->maxMana;
 
-    /*fscanf(statsFile, "%d", &mod[currentPosition]);
-    printf("The mod is: %d\n", mod[currentPosition]);
+        *level = temp;
+    }
+    else if(role == 3)
+    {
+        temp.physicalPower = mod[10] + level->physicalPower;
+        temp.magicalPower  = mod[11] + level->magicalPower;
+        temp.speed         = mod[12] + level->speed;
+        temp.maxHP         = mod[13] + level->maxHP;
+        temp.maxMana       = mod[14] + level->maxMana;
 
-    currentPosition = ftell(statsFile);*/
+        *level = temp;
+    }
+    else if(role == 4)
+    {
+        temp.physicalPower = mod[15] + level->physicalPower;
+        temp.magicalPower  = mod[16] + level->magicalPower;
+        temp.speed         = mod[17] + level->speed;
+        temp.maxHP         = mod[18] + level->maxHP;
+        temp.maxMana       = mod[19] + level->maxMana;
+
+        *level = temp;
+    }
 
     fclose(statsFile);
 }
 
-void checkStats(charInformation* protagonist){
-    FILE *playerStats;
-
-    playerStats = fopen("playerStats.txt", "r");
-
-    printf("You are a named.\n");
-    printf("Your current health is .\n");
-}
 
 void exploreForest(){
     int random;
