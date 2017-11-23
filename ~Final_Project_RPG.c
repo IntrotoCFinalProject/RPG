@@ -36,7 +36,7 @@ void protagLevelUp(charInformation *level);
 void encounterMonster();
 
 //This function will be used whenever the player checks their stats
-void checkStats(charInformation *stats);
+void checkStats(charInformation stats);
 
 //This function is used whenever the player chooses the option to explore, in this case, the forest
 void exploreForest();
@@ -92,19 +92,19 @@ int main(){
         //Player race and starting hp and mana are set
         switch(keypress){
             case '1':
-                strcpy(protagonist.race, "Human");
+                strcpy(protagonist.race, "human");
                 printf("Humans are an all-around race. They tend to favor all play styles, though not as much as more restrictive races.\n");
                 protagonist.maxHP = 15;
                 protagonist.maxMana = 10;
                 break;
             case '2':
-                strcpy(protagonist.race, "Elf");
+                strcpy(protagonist.race, "elf");
                 printf("Eves are a race that excel in magic and feats of dexterity. They tend to favor mobile and magic orientated play styles.\n");
                 protagonist.maxHP = 11;
                 protagonist.maxMana = 13;
                 break;
             case '3':
-                strcpy(protagonist.race, "Ork");
+                strcpy(protagonist.race, "ork");
                 printf("Orks are brutal race. They prefer to use their brawn to solve most issues. They tend to favor melee and defensive play styles.\n");
                 protagonist.maxHP = 19;
                 protagonist.maxMana = 7;
@@ -122,19 +122,19 @@ int main(){
 
         switch(keypress){
             case '1':
-                strcpy(protagonist.job, "Paladin");
+                strcpy(protagonist.job, "paladin");
                 protagonist.statIndex = 1;
                 break;
             case '2':
-                strcpy(protagonist.job, "Berserker");
+                strcpy(protagonist.job, "berserker");
                 protagonist.statIndex = 2;
                 break;
             case '3':
-                strcpy(protagonist.job, "Mage");
+                strcpy(protagonist.job, "mage");
                 protagonist.statIndex = 3;
                 break;
             case '4':
-                strcpy(protagonist.job, "Cleric");
+                strcpy(protagonist.job, "cleric");
                 protagonist.statIndex = 4;
                 break;
             default:
@@ -162,7 +162,7 @@ int main(){
                     }
                     break;
                 case '2':
-                    checkStats(&protagonist);
+                    checkStats(protagonist);
                     break;
                 default:
                     printf("Say again?\n");
@@ -173,9 +173,13 @@ int main(){
     return 0;
 }
 
-void checkStats(charInformation *stats){
+void checkStats(charInformation stats){
 
-    printf("You are %s %s named %s, and your role is %s.\n", stats->gender, stats->race, stats->name, stats->job);
+    printf("You are a %s %s named %s, and you are a %s.\n", stats.gender, stats.race, stats.name, stats.job);
+    printf("Your current health is: %2d/%2d\n", stats.currentHP, stats.maxHP);
+    printf("Your current mana is:   %2d/%2d\n", stats.currentMana, stats.maxMana);
+    printf("You can move at a speed of %d.\n", stats.speed);
+    printf("Your current level is %d, %d experience points from leveling up.\n", stats.level, stats.experience);
 }
 
 void protagLevelUp(charInformation *level){
@@ -187,7 +191,6 @@ void protagLevelUp(charInformation *level){
     statsFile = fopen("jobStatsPerLevel.txt", "r");
 
     role = level->statIndex;
-    printf("Gender is: %s\n", level->gender);
 
     for(i = 0; i < 20; i++){
         fscanf(statsFile, "%d", &mod[i]);
@@ -201,6 +204,11 @@ void protagLevelUp(charInformation *level){
         temp.maxHP         = mod[3] + level->maxHP;
         temp.maxMana       = mod[4] + level->maxMana;
 
+        strcpy(temp.gender, level->gender);
+        strcpy(temp.race, level->race);
+        strcpy(temp.job, level->job);
+        strcpy(temp.name, level->name);
+
         *level = temp;
     }
     else if(role == 2)
@@ -211,7 +219,13 @@ void protagLevelUp(charInformation *level){
         temp.maxHP         = mod[8] + level->maxHP;
         temp.maxMana       = mod[9] + level->maxMana;
 
+        strcpy(temp.gender, level->gender);
+        strcpy(temp.race, level->race);
+        strcpy(temp.job, level->job);
+        strcpy(temp.name, level->name);
+
         *level = temp;
+
     }
     else if(role == 3)
     {
@@ -220,6 +234,11 @@ void protagLevelUp(charInformation *level){
         temp.speed         = mod[12] + level->speed;
         temp.maxHP         = mod[13] + level->maxHP;
         temp.maxMana       = mod[14] + level->maxMana;
+
+        strcpy(temp.gender, level->gender);
+        strcpy(temp.race, level->race);
+        strcpy(temp.job, level->job);
+        strcpy(temp.name, level->name);
 
         *level = temp;
     }
@@ -230,6 +249,12 @@ void protagLevelUp(charInformation *level){
         temp.speed         = mod[17] + level->speed;
         temp.maxHP         = mod[18] + level->maxHP;
         temp.maxMana       = mod[19] + level->maxMana;
+
+        strcpy(temp.gender, level->gender);
+        strcpy(temp.race, level->race);
+        strcpy(temp.job, level->job);
+        strcpy(temp.name, level->name);
+
 
         *level = temp;
     }
@@ -282,8 +307,10 @@ void encounterMonster(){
     FILE *monsterFile;
     FILE *monsterInfo;
     char possibleMonsters[MAX_MONSTERS_IN_AREA][50];
-    int i, monsterStats[MAX_NUM_MONSTER_STATS];
+    int monsterStats[MAX_NUM_MONSTER_STATS];
     char monsterName[30];
+    int i;
+    char insideKeypress;
 
     //This opens up a text document that contains the names of the text files of all possible monsters in a given area
     monsterFile = fopen("possibleMonstersInForest.txt", "r");
@@ -306,12 +333,26 @@ void encounterMonster(){
     //Here we we retrieve the Monster's stats
     for(i = 0; i < MAX_NUM_MONSTER_STATS; i++){
         fscanf(monsterInfo, "%d", &monsterStats[i]);
-        printf("Monster Stat is: %d\n", monsterStats[i]);
     }
 
-    /*do{
+    //When the player first encounters the monster, they have the chance to flee
+    printf("Will you fight or try to run away?\n");
 
-    } while();*/
+    do{
+        printf("1. Fight    2. Run\n");
+        scanf(" %c", &insideKeypress);
+
+        switch(insideKeypress){
+            case '1':
+                printf("You move in to attack.\n");
+                break;
+            case '2':
+                printf("You try to run away.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+    }while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
 
 
     //Again, we are done with the file and finish by closing it
