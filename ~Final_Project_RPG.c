@@ -6,40 +6,48 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
-#define MAX_MONSTERS_IN_AREA 5
-#define MAX_NUM_MONSTER_STATS 2
-#define MAX_NUM_PROTAG_STATS_FROM_FILE 5
+#define  MAX_MONSTERS_IN_AREA 5
+#define  MAX_NUM_MONSTER_STATS 5
+#define  MAX_NUM_PROTAG_STATS_FROM_FILE 5
+
+#define  ALIVE 1
+#define  DEAD  0
 
 typedef struct{
-    char name[30];      //This will save the user's declared name
-    char gender[7];     //This saves their gender
-    char race[20];      //This saves their race which affects their base stats
-    char job[10];       //Their chosen job further affects their stats
-    int  level;         //This will keep track of their level which will increase their stats the higher it is
-    int  experience;    //The experience will be used to keep track of their progress to leveling up
-    int  gold;          //
-    int  physicalPower; //This stat will keep track of the damage done through melee
-    int  magicalPower;  //This stat keeps track of magical damage
-    int  speed;         //This stat tracks their speed to see who begins the fight
-    int  maxHP;         //This stat tracks the maximum health that the player can have
-    int  currentHP;     //This stat checks the current health which will differ from max whenever the player is hurt
-    int  maxMana;       //This stat controls the maximum mana the player can have
-    int  currentMana;   //This stat tracks the player's current mana which changes after using magic
-    int  statIndex;     //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
+    char name[30];          //This will save the user's declared name
+    char gender[7];         //This saves their gender
+    char race[20];          //This saves their race which affects their base stats
+    char job[10];           //Their chosen job further affects their stats
+    int  level;             //This will keep track of their level which will increase their stats the higher it is
+    int  currentExperience; //Current experience will be used to keep track of their progress to leveling up
+    int  neededExperience;  //Needed experience will track the amount of experience needed for level up
+    int  gold;              //
+    int  physicalPower;     //This stat will keep track of the damage done through melee
+    int  magicalPower;      //This stat keeps track of magical damage
+    int  speed;             //This stat tracks their speed to see who begins the fight
+    int  maxHP;             //This stat tracks the maximum health that the player can have
+    int  currentHP;         //This stat checks the current health which will differ from max whenever the player is hurt
+    int  maxMana;           //This stat controls the maximum mana the player can have
+    int  currentMana;       //This stat tracks the player's current mana which changes after using magic
+    int  statIndex;         //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
 } charInformation;
 
 //This function will be used to increase the stats of the player each time they gain a level
 void protagLevelUp(charInformation *level);
 
 //This function randomizes which monster a player will encounter, depending on the area
-void encounterMonster();
+void encounterMonster(charInformation protagonist);
 
 //This function will be used whenever the player checks their stats
 void checkStats(charInformation stats);
 
 //This function is used whenever the player chooses the option to explore, in this case, the forest
 void exploreForest();
+
+//This function controls the battle sequence whenever the player fights an enemy
+//void battleEncounter(charInformation *protagonist, monsterStats[MAX_NUM_MONSTER_STATS]);
 
 //Character information struct is used to set the base attributes
 //and information of various entities.
@@ -50,9 +58,7 @@ int main(){
     //Any information directly regarding the playable character
     //should edit only the protagonist variable.
     charInformation protagonist;
-    protagonist.level = 0; protagonist.experience = 0; protagonist.gold = 0;
-    protagonist.physicalPower = 0; protagonist.magicalPower = 0; protagonist.speed;
-    protagonist.maxHP = 0; protagonist.maxMana = 0;
+    protagonist.level = 0; protagonist.speed = 0; protagonist.currentExperience = 0; protagonist.neededExperience = 0;
     char keypress;
 
     //Here we set up the randomizer for later in the program
@@ -156,7 +162,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 50){
-                        encounterMonster();
+                        encounterMonster(protagonist);
                     } else{
                         exploreForest();
                     }
@@ -174,12 +180,13 @@ int main(){
 }
 
 void checkStats(charInformation stats){
-
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("You are a %s %s named %s, and you are a %s.\n", stats.gender, stats.race, stats.name, stats.job);
-    printf("Your current health is: %2d/%2d\n", stats.currentHP, stats.maxHP);
-    printf("Your current mana is:   %2d/%2d\n", stats.currentMana, stats.maxMana);
+    printf("Your current health is: %3d/%d\n", stats.currentHP, stats.maxHP);
+    printf("Your current mana is:   %3d/%d\n", stats.currentMana, stats.maxMana);
     printf("You can move at a speed of %d.\n", stats.speed);
-    printf("Your current level is %d, %d experience points from leveling up.\n", stats.level, stats.experience);
+    printf("You are currently level %d, %d experience points out of %d from leveling up.\n", stats.level, stats.currentExperience, stats.neededExperience);
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 }
 
 void protagLevelUp(charInformation *level){
@@ -192,6 +199,16 @@ void protagLevelUp(charInformation *level){
 
     role = level->statIndex;
 
+    if(level->level == 0){
+        temp.level = 0;
+    }
+    else{
+        level->level = temp.level;
+    }
+
+    temp.level++;
+    temp.currentExperience = abs(level->neededExperience - level->currentExperience);
+
     for(i = 0; i < 20; i++){
         fscanf(statsFile, "%d", &mod[i]);
     }
@@ -203,6 +220,9 @@ void protagLevelUp(charInformation *level){
         temp.speed         = mod[2] + level->speed;
         temp.maxHP         = mod[3] + level->maxHP;
         temp.maxMana       = mod[4] + level->maxMana;
+
+        temp.currentHP   = temp.maxHP;
+        temp.currentMana = temp.maxMana;
 
         strcpy(temp.gender, level->gender);
         strcpy(temp.race, level->race);
@@ -218,6 +238,9 @@ void protagLevelUp(charInformation *level){
         temp.speed         = mod[7] + level->speed;
         temp.maxHP         = mod[8] + level->maxHP;
         temp.maxMana       = mod[9] + level->maxMana;
+
+        temp.currentHP   = temp.maxHP;
+        temp.currentMana = temp.maxMana;
 
         strcpy(temp.gender, level->gender);
         strcpy(temp.race, level->race);
@@ -235,6 +258,9 @@ void protagLevelUp(charInformation *level){
         temp.maxHP         = mod[13] + level->maxHP;
         temp.maxMana       = mod[14] + level->maxMana;
 
+        temp.currentHP   = temp.maxHP;
+        temp.currentMana = temp.maxMana;
+
         strcpy(temp.gender, level->gender);
         strcpy(temp.race, level->race);
         strcpy(temp.job, level->job);
@@ -249,6 +275,9 @@ void protagLevelUp(charInformation *level){
         temp.speed         = mod[17] + level->speed;
         temp.maxHP         = mod[18] + level->maxHP;
         temp.maxMana       = mod[19] + level->maxMana;
+
+        temp.currentHP   = temp.maxHP;
+        temp.currentMana = temp.maxMana;
 
         strcpy(temp.gender, level->gender);
         strcpy(temp.race, level->race);
@@ -301,7 +330,7 @@ void exploreForest(){
 
 }
 
-void encounterMonster(){
+void encounterMonster(charInformation protagonist){
     //2D array of strings storing filenames of all possible monsters
     //player could encounter in the area they are in.
     FILE *monsterFile;
@@ -327,13 +356,15 @@ void encounterMonster(){
     monsterInfo = fopen(possibleMonsters[ (rand() % MAX_MONSTERS_IN_AREA) ], "r");
 
     //Here we access the monster's name from the appropriate file
-    fscanf(monsterInfo, "%s", &monsterName);
+    fscanf(monsterInfo, "%s", monsterName);
     printf("Monster name is: %s\n", monsterName);
 
     //Here we we retrieve the Monster's stats
     for(i = 0; i < MAX_NUM_MONSTER_STATS; i++){
         fscanf(monsterInfo, "%d", &monsterStats[i]);
     }
+
+    printf("%d %d %d %d %d\n", monsterStats[0], monsterStats[1], monsterStats[2], monsterStats[3], monsterStats[4]);
 
     //When the player first encounters the monster, they have the chance to flee
     printf("Will you fight or try to run away?\n");
@@ -345,9 +376,19 @@ void encounterMonster(){
         switch(insideKeypress){
             case '1':
                 printf("You move in to attack.\n");
+                battleEncounter(&protagonist, monsterStats);
                 break;
             case '2':
-                printf("You try to run away.\n");
+                if(protagonist.speed >= monsterStats[2])
+                {
+                    printf("You got away!\n");
+                    break;
+                }
+                else
+                {
+                    printf("You can't get away!\n");
+                    battleEncounter();
+                }
                 break;
             default:
                 printf("Say again?\n");
@@ -357,4 +398,9 @@ void encounterMonster(){
 
     //Again, we are done with the file and finish by closing it
     fclose(monsterInfo);
+}
+
+void battleEncounter(/*charInformation *protagonist, monsterStats[MAX_NUM_MONSTER_STATS]*/){
+    printf("Battle!\n");
+
 }
