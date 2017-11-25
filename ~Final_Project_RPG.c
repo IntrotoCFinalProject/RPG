@@ -198,27 +198,9 @@ void protagLevelUp(charInformation *protag){
     int   i;
     FILE *statsFile;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     statsFile = fopen("jobStatsPerLevel.txt", "r");
 
-    temp.statIndex = level->statIndex;
-    temp.level = level->level;
-
-    temp.level++;
-    temp.currentExperience = abs(level->neededExperience - level->currentExperience);
-
-    for(i = 0; i < 20; i++){
-        fscanf(statsFile, "%d", &mod[i]);
-    }
-
-    if(temp.statIndex == 1)
-=======
     if( strcmp(protag->job, "paladin") == 0 )
->>>>>>> 495b50ecdff1f1fa2095a6a9892326b84f68d753
-=======
-    if( strcmp(protag->job, "paladin") == 0 )
->>>>>>> 495b50ecdff1f1fa2095a6a9892326b84f68d753
     {
         statsFile = fopen("ZpaladinStatsPerLevel.txt", "r");
     }
