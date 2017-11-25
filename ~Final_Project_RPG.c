@@ -20,10 +20,11 @@ typedef struct{
     char gender[7];         //This saves their gender
     char race[20];          //This saves their race which affects their base stats
     char job[10];           //Their chosen job further affects their stats
+    int  statIndex;         //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
     int  level;             //This will keep track of their level which will increase their stats the higher it is
     int  currentExperience; //Current experience will be used to keep track of their progress to leveling up
     int  neededExperience;  //Needed experience will track the amount of experience needed for level up
-    int  gold;              //
+    int  gold;              //The gold stat will be used to track the players score based on the enemies they've killed
     int  physicalPower;     //This stat will keep track of the damage done through melee
     int  magicalPower;      //This stat keeps track of magical damage
     int  speed;             //This stat tracks their speed to see who begins the fight
@@ -31,7 +32,6 @@ typedef struct{
     int  currentHP;         //This stat checks the current health which will differ from max whenever the player is hurt
     int  maxMana;           //This stat controls the maximum mana the player can have
     int  currentMana;       //This stat tracks the player's current mana which changes after using magic
-    int  statIndex;         //Offset (based on selected job) for how far along to move in the jobStatsPerLevel.txt for the desired character stat mods
 } charInformation;
 
 //This function will be used to increase the stats of the player each time they gain a level
@@ -45,6 +45,9 @@ void checkStats(charInformation stats);
 
 //This function is used whenever the player chooses the option to explore, in this case, the forest
 void exploreForest();
+
+//This function gets called every time the player encounters a monster and chooses to fight or fails to flee
+void battleEncounter(charInformation *protagonist, int monsterStats[], char *monsterName);
 
 //This function controls the battle sequence whenever the player fights an enemy
 //void battleEncounter(charInformation *protagonist, monsterStats[MAX_NUM_MONSTER_STATS]);
@@ -163,7 +166,8 @@ int main(){
                 case '1':
                     if((rand() % 100) >= 50){
                         encounterMonster(protagonist);
-                    } else{
+                    }
+                    else{
                         exploreForest();
                     }
                     break;
@@ -192,12 +196,12 @@ void checkStats(charInformation stats){
 void protagLevelUp(charInformation *level){
     charInformation temp;
     int   mod[20];
-    int   role, i;
+    int   i;
     FILE *statsFile;
 
     statsFile = fopen("jobStatsPerLevel.txt", "r");
 
-    role = level->statIndex;
+    temp.statIndex = level->statIndex;
 
     if(level->level == 0){
         temp.level = 0;
@@ -213,7 +217,7 @@ void protagLevelUp(charInformation *level){
         fscanf(statsFile, "%d", &mod[i]);
     }
 
-    if(role == 1)
+    if(temp.statIndex == 1)
     {
         temp.physicalPower = mod[0] + level->physicalPower;
         temp.magicalPower  = mod[1] + level->magicalPower;
@@ -231,7 +235,7 @@ void protagLevelUp(charInformation *level){
 
         *level = temp;
     }
-    else if(role == 2)
+    else if(temp.statIndex == 2)
     {
         temp.physicalPower = mod[5] + level->physicalPower;
         temp.magicalPower  = mod[6] + level->magicalPower;
@@ -250,7 +254,7 @@ void protagLevelUp(charInformation *level){
         *level = temp;
 
     }
-    else if(role == 3)
+    else if(temp.statIndex == 3)
     {
         temp.physicalPower = mod[10] + level->physicalPower;
         temp.magicalPower  = mod[11] + level->magicalPower;
@@ -268,7 +272,7 @@ void protagLevelUp(charInformation *level){
 
         *level = temp;
     }
-    else if(role == 4)
+    else if(temp.statIndex == 4)
     {
         temp.physicalPower = mod[15] + level->physicalPower;
         temp.magicalPower  = mod[16] + level->magicalPower;
@@ -340,6 +344,7 @@ void encounterMonster(charInformation protagonist){
     char monsterName[30];
     int i;
     char insideKeypress;
+    charInformation  *temp;
 
     //This opens up a text document that contains the names of the text files of all possible monsters in a given area
     monsterFile = fopen("possibleMonstersInForest.txt", "r");
@@ -364,8 +369,6 @@ void encounterMonster(charInformation protagonist){
         fscanf(monsterInfo, "%d", &monsterStats[i]);
     }
 
-    printf("%d %d %d %d %d\n", monsterStats[0], monsterStats[1], monsterStats[2], monsterStats[3], monsterStats[4]);
-
     //When the player first encounters the monster, they have the chance to flee
     printf("Will you fight or try to run away?\n");
 
@@ -376,7 +379,7 @@ void encounterMonster(charInformation protagonist){
         switch(insideKeypress){
             case '1':
                 printf("You move in to attack.\n");
-                battleEncounter(&protagonist, monsterStats);
+                battleEncounter(&protagonist, monsterStats, monsterName);
                 break;
             case '2':
                 if(protagonist.speed >= monsterStats[2])
@@ -387,7 +390,7 @@ void encounterMonster(charInformation protagonist){
                 else
                 {
                     printf("You can't get away!\n");
-                    battleEncounter();
+                    battleEncounter(&protagonist, monsterStats, monsterName);
                 }
                 break;
             default:
@@ -400,7 +403,56 @@ void encounterMonster(charInformation protagonist){
     fclose(monsterInfo);
 }
 
-void battleEncounter(/*charInformation *protagonist, monsterStats[MAX_NUM_MONSTER_STATS]*/){
-    printf("Battle!\n");
+void battleEncounter(charInformation *protagonist, int monsterStats[], char *monsterName){
+    charInformation battle;
+
+    strcpy(battle.gender, protagonist->gender);
+    strcpy(battle.race, protagonist->race);
+    strcpy(battle.job, protagonist->job);
+    strcpy(battle.name, protagonist->name);
+
+
+    int monster = ALIVE;
+    int player  = ALIVE;
+
+    printf("%d %d %d %d %d\n", monsterStats[0], monsterStats[1], monsterStats[2], monsterStats[3], monsterStats[4]);
+
+    while(monster == ALIVE && player == ALIVE)
+    {
+        printf("You approach the monster, and as a %s choose to:\n\n", battle.job);
+        if(protagonist->statIndex == 1)
+        {
+            printf("1. Swing Your Longsword    2. Shield    3. Magical Spark    4. Moderate Heal\n");
+            player = DEAD;
+        }
+        else if(protagonist->statIndex == 2)
+        {
+            printf("1. Swing Your Axes    2. Block    3. Conjure Throwing Knives    4. Damage Buff\n");
+            player = DEAD;
+        }
+        else if(protagonist->statIndex == 3)
+        {
+            printf("1. Swing Your Dagger    2. Summon A Shield    3. Summon Elemental Shards    4. Minor Heal\n");
+            player = DEAD;
+        }
+        else if(protagonist->statIndex == 4)
+        {
+            printf("1. Swing Your Staff   2. Conjure A Barrier    3. Fire Magic Missiles    4. Major Heal\n");
+            player = DEAD;
+        }
+    }
+
+
+    if(monster == DEAD)
+    {
+        printf("You have defeated the %s\n", monsterName);
+    }
+    else if(player == DEAD)
+    {
+        printf("You have been slain in battle.\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GAME OVER~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
+        exit(DEAD);
+        //return DEAD;
+    }
 
 }
