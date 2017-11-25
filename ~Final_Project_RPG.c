@@ -199,6 +199,7 @@ void protagLevelUp(charInformation *protag){
     FILE *statsFile;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     statsFile = fopen("jobStatsPerLevel.txt", "r");
 
     temp.statIndex = level->statIndex;
@@ -212,6 +213,9 @@ void protagLevelUp(charInformation *protag){
     }
 
     if(temp.statIndex == 1)
+=======
+    if( strcmp(protag->job, "paladin") == 0 )
+>>>>>>> 495b50ecdff1f1fa2095a6a9892326b84f68d753
 =======
     if( strcmp(protag->job, "paladin") == 0 )
 >>>>>>> 495b50ecdff1f1fa2095a6a9892326b84f68d753
