@@ -35,7 +35,7 @@ typedef struct{
 } charInformation;
 
 //This function will be used to increase the stats of the player each time they gain a level
-void protagLevelUp(charInformation *level);
+void protagLevelUp(charInformation *protag);
 
 //This function randomizes which monster a player will encounter, depending on the area
 void encounterMonster(charInformation protagonist);
@@ -193,104 +193,44 @@ void checkStats(charInformation stats){
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 }
 
-void protagLevelUp(charInformation *level){
-    charInformation temp;
-    int   mod[20];
+void protagLevelUp(charInformation *protag){
+    int   mod[MAX_NUM_PROTAG_STATS_FROM_FILE];
     int   i;
     FILE *statsFile;
 
-    statsFile = fopen("jobStatsPerLevel.txt", "r");
-
-    temp.statIndex = level->statIndex;
-
-    if(level->level == 0){
-        temp.level = 0;
+    if( strcmp(protag->job, "paladin") == 0 )
+    {
+        statsFile = fopen("ZpaladinStatsPerLevel.txt", "r");
     }
-    else{
-        level->level = temp.level;
+    else if( strcmp(protag->job, "berserker") == 0 )
+    {
+        statsFile = fopen("ZberserkerStatsPerLevel.txt", "r");
+    }
+    else if( strcmp(protag->job, "mage") == 0)
+    {
+        statsFile = fopen("ZmageStatsPerLevel.txt", "r");
+    }
+    else if( strcmp(protag->job, "cleric") == 0 )
+    {
+        statsFile = fopen("ZclericStatsPerLevel.txt", "r");
     }
 
-    temp.level++;
-    temp.currentExperience = abs(level->neededExperience - level->currentExperience);
+    protag->level++;
+    protag->currentExperience = abs(protag->neededExperience - protag->currentExperience);
 
-    for(i = 0; i < 20; i++){
+    for(i = 0; i < MAX_NUM_PROTAG_STATS_FROM_FILE; i++){
         fscanf(statsFile, "%d", &mod[i]);
     }
 
-    if(temp.statIndex == 1)
-    {
-        temp.physicalPower = mod[0] + level->physicalPower;
-        temp.magicalPower  = mod[1] + level->magicalPower;
-        temp.speed         = mod[2] + level->speed;
-        temp.maxHP         = mod[3] + level->maxHP;
-        temp.maxMana       = mod[4] + level->maxMana;
+    //increment stats by desired amount
+    protag->physicalPower = mod[0] + protag->physicalPower;
+    protag->magicalPower  = mod[1] + protag->magicalPower;
+    protag->speed         = mod[2] + protag->speed;
+    protag->maxHP         = mod[3] + protag->maxHP;
+    protag->maxMana       = mod[4] + protag->maxMana;
 
-        temp.currentHP   = temp.maxHP;
-        temp.currentMana = temp.maxMana;
-
-        strcpy(temp.gender, level->gender);
-        strcpy(temp.race, level->race);
-        strcpy(temp.job, level->job);
-        strcpy(temp.name, level->name);
-
-        *level = temp;
-    }
-    else if(temp.statIndex == 2)
-    {
-        temp.physicalPower = mod[5] + level->physicalPower;
-        temp.magicalPower  = mod[6] + level->magicalPower;
-        temp.speed         = mod[7] + level->speed;
-        temp.maxHP         = mod[8] + level->maxHP;
-        temp.maxMana       = mod[9] + level->maxMana;
-
-        temp.currentHP   = temp.maxHP;
-        temp.currentMana = temp.maxMana;
-
-        strcpy(temp.gender, level->gender);
-        strcpy(temp.race, level->race);
-        strcpy(temp.job, level->job);
-        strcpy(temp.name, level->name);
-
-        *level = temp;
-
-    }
-    else if(temp.statIndex == 3)
-    {
-        temp.physicalPower = mod[10] + level->physicalPower;
-        temp.magicalPower  = mod[11] + level->magicalPower;
-        temp.speed         = mod[12] + level->speed;
-        temp.maxHP         = mod[13] + level->maxHP;
-        temp.maxMana       = mod[14] + level->maxMana;
-
-        temp.currentHP   = temp.maxHP;
-        temp.currentMana = temp.maxMana;
-
-        strcpy(temp.gender, level->gender);
-        strcpy(temp.race, level->race);
-        strcpy(temp.job, level->job);
-        strcpy(temp.name, level->name);
-
-        *level = temp;
-    }
-    else if(temp.statIndex == 4)
-    {
-        temp.physicalPower = mod[15] + level->physicalPower;
-        temp.magicalPower  = mod[16] + level->magicalPower;
-        temp.speed         = mod[17] + level->speed;
-        temp.maxHP         = mod[18] + level->maxHP;
-        temp.maxMana       = mod[19] + level->maxMana;
-
-        temp.currentHP   = temp.maxHP;
-        temp.currentMana = temp.maxMana;
-
-        strcpy(temp.gender, level->gender);
-        strcpy(temp.race, level->race);
-        strcpy(temp.job, level->job);
-        strcpy(temp.name, level->name);
-
-
-        *level = temp;
-    }
+    protag->currentHP   = protag->maxHP;
+    protag->currentMana = protag->maxMana;
 
     fclose(statsFile);
 }
@@ -340,9 +280,10 @@ void encounterMonster(charInformation protagonist){
     FILE *monsterFile;
     FILE *monsterInfo;
     char possibleMonsters[MAX_MONSTERS_IN_AREA][50];
-    int monsterStats[MAX_NUM_MONSTER_STATS];
+    //monsterStats info at each index-
+    //0: ; 1: ; 2: ; 3: ; 4:
+    int monsterStats[MAX_NUM_MONSTER_STATS], i;
     char monsterName[30];
-    int i;
     char insideKeypress;
     charInformation  *temp;
 
@@ -362,7 +303,7 @@ void encounterMonster(charInformation protagonist){
 
     //Here we access the monster's name from the appropriate file
     fscanf(monsterInfo, "%s", monsterName);
-    printf("Monster name is: %s\n", monsterName);
+    printf("You have encountered a %s!\n", monsterName);
 
     //Here we we retrieve the Monster's stats
     for(i = 0; i < MAX_NUM_MONSTER_STATS; i++){
@@ -376,6 +317,7 @@ void encounterMonster(charInformation protagonist){
         printf("1. Fight    2. Run\n");
         scanf(" %c", &insideKeypress);
 
+        //User decides whether to engage the monster or to flee. Fleeing only succeeds if protag is faster
         switch(insideKeypress){
             case '1':
                 printf("You move in to attack.\n");
@@ -403,15 +345,7 @@ void encounterMonster(charInformation protagonist){
     fclose(monsterInfo);
 }
 
-void battleEncounter(charInformation *protagonist, int monsterStats[], char *monsterName){
-    charInformation battle;
-
-    strcpy(battle.gender, protagonist->gender);
-    strcpy(battle.race, protagonist->race);
-    strcpy(battle.job, protagonist->job);
-    strcpy(battle.name, protagonist->name);
-
-
+void battleEncounter(charInformation *protag, int monsterStats[], char *monsterName){
     int monster = ALIVE;
     int player  = ALIVE;
 
@@ -419,29 +353,28 @@ void battleEncounter(charInformation *protagonist, int monsterStats[], char *mon
 
     while(monster == ALIVE && player == ALIVE)
     {
-        printf("You approach the monster, and as a %s choose to:\n\n", battle.job);
-        if(protagonist->statIndex == 1)
+        printf("You approach the monster, and as a %s choose to:\n\n", protag->job);
+        if( strcmp(protag->job, "paladin") == 0 )
         {
             printf("1. Swing Your Longsword    2. Shield    3. Magical Spark    4. Moderate Heal\n");
             player = DEAD;
         }
-        else if(protagonist->statIndex == 2)
+        else if( strcmp(protag->job, "berserker") == 0 )
         {
             printf("1. Swing Your Axes    2. Block    3. Conjure Throwing Knives    4. Damage Buff\n");
             player = DEAD;
         }
-        else if(protagonist->statIndex == 3)
+        else if( strcmp(protag->job, "mage") == 0 )
         {
             printf("1. Swing Your Dagger    2. Summon A Shield    3. Summon Elemental Shards    4. Minor Heal\n");
             player = DEAD;
         }
-        else if(protagonist->statIndex == 4)
+        else if( strcmp(protag->job, "cleric") == 0 )
         {
             printf("1. Swing Your Staff   2. Conjure A Barrier    3. Fire Magic Missiles    4. Major Heal\n");
             player = DEAD;
         }
     }
-
 
     if(monster == DEAD)
     {
@@ -454,5 +387,4 @@ void battleEncounter(charInformation *protagonist, int monsterStats[], char *mon
         exit(DEAD);
         //return DEAD;
     }
-
 }
