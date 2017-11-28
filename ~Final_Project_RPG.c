@@ -43,8 +43,15 @@ void encounterMonster(charInformation protagonist);
 //This function will be used whenever the player checks their stats
 void checkStats(charInformation stats);
 
-//This function is used whenever the player chooses the option to explore, in this case, the forest
+//These functions are called whenever the player chooses the option to explore
 void exploreForest();
+void exploreCave();
+void exploreTown();
+void exploreGraveyard();
+void exploreMountain();
+void exploreMarsh();
+void exploreDesert();
+void exploreVolcano();
 
 //This function gets called every time the player encounters a monster and chooses to fight or fails to flee
 void battleEncounter(charInformation *protagonist, int monsterStats[], char *monsterName);
@@ -251,14 +258,14 @@ void exploreForest(){
     }
     //If the number is between 33 and 65, the player advances
     else if (random >= 33){
-        printf("You found a hidden path deep into the forest\nWhat will you do?\n");
+        printf("You found a hidden path deep into the forest.\nWhat will you do?\n");
         do{
-            printf("1. Follow the path    2. Turn back\n");
+            printf("1. Follow The Path    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
 
             switch(insideKeypress){
             case '1':
-                printf("You venture further down the path and find yourself lost in a strange land.\n");
+                printf("You venture further down the path and find yourself lost in a branching cave system.\n");
                 break;
             case '2':
                 printf("You turn around and retrace your steps.\n");
@@ -268,6 +275,356 @@ void exploreForest(){
             }
 
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    else if(random >= 10){
+        printf("You see a village off in the distance.\nWhat will you do?\n");
+        do{
+            printf("1. Head Towards The Village    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You head towards the village only to find it deserted.\n");
+                break;
+            case '2':
+                printf("You continue to wander around the forest.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    //If the number is between 0 and 32, nothing happens
+    else{
+        printf("You found nothing and keep moving.\n");
+    }
+
+}
+
+void exploreCave(){
+    int random;
+    char insideKeypress;
+
+    //We use a random number to determine the outcome of each exploration
+    random = (rand() % 100);
+
+    //If the number rolls 66 or above, the player finds loot
+    if (random >= 66){
+        printf("You found some loot!\n");
+    }
+    //If the number is between 33 and 65, the player advances
+    else if (random >= 33){
+        printf("You find a caved in mineshaft.\nWhat will you do?\n");
+        do{
+            printf("1. Move The Rubble    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You follow the mineshaft to the surface and are surrounded by mountains on every side.\n");
+                break;
+            case '2':
+                printf("You turn around continue to explore the cave system.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if(random >= 10){
+        printf("You find a way out of the caves but cannot see past some mist.\nWhat will you do?\n");
+        do{
+            printf("1. Dash Into The Mist    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You run haphazardly into the mist.\n");
+                break;
+            case '2':
+                printf("You cautiously make your way back into the caves.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    //If the number is between 0 and 32, nothing happens
+    else{
+        printf("You found nothing and keep moving.\n");
+    }
+
+}
+
+void exploreTown(){
+    int random;
+    char insideKeypress;
+
+    //We use a random number to determine the outcome of each exploration
+    random = (rand() % 100);
+
+    //If the number rolls 66 or above, the player finds loot
+    if (random >= 66){
+        printf("You found some loot!\n");
+    }
+    //If the number is between 33 and 65, the player advances
+    else if (random >= 33){
+        printf("You find a path that leads into the mountain range.\nWhat will you do?\n");
+        do{
+            printf("1. Approach The Mountains    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You follow the path into the valley.\n");
+                break;
+            case '2':
+                printf("You turn around and return to the village.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if(random >= 10){
+        printf("You see mist billowing in the distance.\nWhat will you do?\n");
+        do{
+            printf("1. Approach The Mist    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You enter the mist near the edge of the town.\n");
+                break;
+            case '2':
+                printf("You continue to search the village.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    //If the number is between 0 and 32, nothing happens
+    else{
+        printf("You found nothing and keep moving.\n");
+    }
+
+}
+
+void exploreGraveyard(){
+    int random;
+    char insideKeypress;
+
+    //We use a random number to determine the outcome of each exploration
+    random = (rand() % 100);
+
+    //If the number rolls 66 or above, the player finds loot
+    if (random >= 66){
+        printf("You found some loot!\n");
+    }
+    //If the number is between 33 and 65, the player advances
+    else if (random >= 33){
+        printf("You spot a river leading out of the mist.\nWhat will you do?\n");
+        do{
+            printf("1. Follow The River    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You follow the river, lose your footing, and get swept away by the current.\n");
+                break;
+            case '2':
+                printf("You walk away from the river and lose yourself in the mist.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if(random >= 10){
+        printf("As you move forward, you find the mist begins to slowly clear as the air dries.\nWhat will you do?\n");
+        do{
+            printf("1. Keep Moving Forward    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You keep moving until sand is the only thing you can see for miles.\n");
+                break;
+            case '2':
+                printf("You turn around and return to the endless mist.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    //If the number is between 0 and 32, nothing happens
+    else{
+        printf("You found nothing and keep moving.\n");
+    }
+
+}
+
+void exploreMountain(){
+    int random;
+    char insideKeypress;
+
+    //We use a random number to determine the outcome of each exploration
+    random = (rand() % 100);
+
+    //If the number rolls 66 or above, the player finds loot
+    if (random >= 66){
+        printf("You found some loot!\n");
+    }
+    //If the number is between 33 and 65, the player advances
+    else if (random >= 33){
+        printf("You find a river that leads out of the valley.\nWhat will you do?\n");
+        do{
+            printf("1. Follow The River    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You follow the river until you are surrounded by marsh.\n");
+                break;
+            case '2':
+                printf("You walk past the river and explore the mountains.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if(random >= 10){
+        printf("You slide down the mountain and find yourself at the foot of a desert.\nWhat will you do?\n");
+        do{
+            printf("1. Venture Into The Desert    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You move forward towards the desert, hoping to find an oasis within.\n");
+                break;
+            case '2':
+                printf("You climb back up the mountain.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    //If the number is between 0 and 32, nothing happens
+    else{
+        printf("You found nothing and keep moving.\n");
+    }
+
+}
+
+void exploreMarsh(){
+    int random;
+    char insideKeypress;
+
+    //We use a random number to determine the outcome of each exploration
+    random = (rand() % 100);
+
+    //If the number rolls 66 or above, the player finds loot
+    if (random >= 66){
+        printf("You found some loot!\n");
+    }
+    //If the number is between 33 and 65, the player advances
+    else if (random >= 33){
+        printf("As you travel the marsh, you find scorched earth beneath your feet. You look forward and see a looming volcano.\nYou sense this is what you have been preparing for. What will you do?\n");
+        do{
+            printf("1. Approach The Volcano    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You walk towards the volcano, careful to not burn yourself from the spewing craters.\n");
+                break;
+            case '2':
+                printf("You are not ready to discover your fate and return to the marsh.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    //If the number is between 0 and 32, nothing happens
+    else{
+        printf("You found nothing and keep moving.\n");
+    }
+
+}
+
+void exploreDesert(){
+    int random;
+    char insideKeypress;
+
+    //We use a random number to determine the outcome of each exploration
+    random = (rand() % 100);
+
+    //If the number rolls 66 or above, the player finds loot
+    if (random >= 66){
+        printf("You found some loot!\n");
+    }
+    //If the number is between 33 and 65, the player advances
+    else if (random >= 33){
+        printf("As you explore the desert, you find it to be growing hotter. You notice a volcano spewing lava nearby.\nWill you approach the volcano and prepare for the end?\n");
+        do{
+            printf("1. Approach The Volcano    2. Turn Back\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You walk towards the volcano, careful to not burn yourself from the spewing craters.\n");
+                break;
+            case '2':
+                printf("You are not ready to discover your fate and return to the desert.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    //If the number is between 0 and 32, nothing happens
+    else{
+        printf("You found nothing and keep moving.\n");
+    }
+
+}
+
+void exploreVolcano(){
+    int random;
+    char insideKeypress;
+
+    //We use a random number to determine the outcome of each exploration
+    random = (rand() % 100);
+
+    //If the number rolls 66 or above, the player finds loot
+    if (random >= 66){
+        printf("You found some loot!\n");
+    }
+    //If the number is between 33 and 65, the player advances
+    else if (random >= 33){
+        printf("This is the end.\n");
     }
     //If the number is between 0 and 32, nothing happens
     else{
