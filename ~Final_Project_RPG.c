@@ -32,43 +32,44 @@ typedef struct{
     int  currentHP;         //This stat checks the current health which will differ from max whenever the player is hurt
     int  maxMana;           //This stat controls the maximum mana the player can have
     int  currentMana;       //This stat tracks the player's current mana which changes after using magic
+    int  area;              //The area stat will track which explore function should be used
 } charInformation;
 
 //This function will be used to increase the stats of the player each time they gain a level
 void protagLevelUp(charInformation *protag);
 
 //This function randomizes which monster a player will encounter, depending on the area
-void encounterMonster(charInformation protagonist);
+void encounterMonster(charInformation protag);
 
 //This function will be used whenever the player checks their stats
 void checkStats(charInformation stats);
 
 //These functions are called whenever the player chooses the option to explore
-void exploreForest();
-void exploreCave();
-void exploreTown();
-void exploreGraveyard();
-void exploreMountain();
-void exploreMarsh();
-void exploreDesert();
-void exploreVolcano();
+void exploreForest(charInformation *protag);
+void exploreCave(charInformation *protag);
+void exploreTown(charInformation *protag);
+void exploreGraveyard(charInformation *protag);
+void exploreMountain(charInformation *protag);
+void exploreMarsh(charInformation *protag);
+void exploreDesert(charInformation *protag);
+void exploreVolcano(charInformation *protag);
 
 //This function gets called every time the player encounters a monster and chooses to fight or fails to flee
-void battleEncounter(charInformation *protagonist, int monsterStats[], char *monsterName);
+void battleEncounter(charInformation *protag, int monsterStats[], char *monsterName);
 
 //This function controls the battle sequence whenever the player fights an enemy
-//void battleEncounter(charInformation *protagonist, monsterStats[MAX_NUM_MONSTER_STATS]);
+//void battleEncounter(charInformation *protag, monsterStats[MAX_NUM_MONSTER_STATS]);
 
 //Character information struct is used to set the base attributes
 //and information of various entities.
 //NOTE: all variables for characterInformation may not be used for a given variable.
 
 int main(){
-    //The protagonist variable is the character the plays controls.
+    //The protag variable is the character the plays controls.
     //Any information directly regarding the playable character
-    //should edit only the protagonist variable.
-    charInformation protagonist;
-    protagonist.level = 0; protagonist.speed = 0; protagonist.currentExperience = 0; protagonist.neededExperience = 0;
+    //should edit only the protag variable.
+    charInformation protag;
+    protag.level = 0; protag.speed = 0; protag.currentExperience = 0; protag.neededExperience = 0; protag.area = 0;
     char keypress;
 
     //Here we set up the randomizer for later in the program
@@ -76,10 +77,10 @@ int main(){
 
     printf("You find yourself in a thick forest, unsure of where you are. You can't seem to recall anything... besides who you are.\n");
     printf("What is your name?\n");
-    scanf("%s", protagonist.name);
+    scanf("%s", protag.name);
 
     //Repeats the choices until the user selects a valid one, then
-    //sets protagonist as needed.
+    //sets protag as needed.
     printf("What is your gender? (Press the button that corresponds with your choice).\n");
     do {
         printf("1. Male    2. Female\n");
@@ -87,10 +88,10 @@ int main(){
 
         switch(keypress){
             case '1':
-                strcpy(protagonist.gender, "male");
+                strcpy(protag.gender, "male");
                 break;
             case '2':
-                strcpy(protagonist.gender, "female");
+                strcpy(protag.gender, "female");
                 break;
             default:
                 printf("Say again?\n");
@@ -100,7 +101,7 @@ int main(){
     //Since the variable keypress was reused multiple times, do-
     //while was used in order to prevent a leftover keypress value
     //from preventing a while loop from running
-    printf("You are a %s named %s. You walk over to a nearby pond and look at your reflection. What do you see?\n", protagonist.gender, protagonist.name);
+    printf("You are a %s named %s. You walk over to a nearby pond and look at your reflection. What do you see?\n", protag.gender, protag.name);
     do {
         printf("1. Human    2. Elf    3. Ork\n");
         scanf(" %c", &keypress);//The max length for the string is 80 characters plus a space for the /0
@@ -108,22 +109,22 @@ int main(){
         //Player race and starting hp and mana are set
         switch(keypress){
             case '1':
-                strcpy(protagonist.race, "human");
+                strcpy(protag.race, "human");
                 printf("Humans are an all-around race. They tend to favor all play styles, though not as much as more restrictive races.\n");
-                protagonist.maxHP = 15;
-                protagonist.maxMana = 10;
+                protag.maxHP = 15;
+                protag.maxMana = 10;
                 break;
             case '2':
-                strcpy(protagonist.race, "elf");
+                strcpy(protag.race, "elf");
                 printf("Eves are a race that excel in magic and speed. They tend to favor mobile and magic orientated play styles.\n");
-                protagonist.maxHP = 11;
-                protagonist.maxMana = 13;
+                protag.maxHP = 11;
+                protag.maxMana = 13;
                 break;
             case '3':
-                strcpy(protagonist.race, "ork");
+                strcpy(protag.race, "ork");
                 printf("Orks are brutal race. They prefer to use their brawn to solve most issues. They tend to favor melee and defensive play styles.\n");
-                protagonist.maxHP = 19;
-                protagonist.maxMana = 7;
+                protag.maxHP = 19;
+                protag.maxMana = 7;
                 break;
             default:
                 printf("Say again?\n");
@@ -131,27 +132,27 @@ int main(){
     } while( !( (keypress >= '1') && (keypress <= '3')  ) );
 
     //Player selects their job/class
-    printf("You are %s. Before waking up here you recall that you were a...\n", protagonist.race);
+    printf("You are %s. Before waking up here you recall that you were a...\n", protag.race);
     do {
         printf("1. Paladin    2. Berserker   3. Mage    4. Cleric\n");
         scanf(" %c", &keypress);
 
         switch(keypress){
             case '1':
-                strcpy(protagonist.job, "paladin");
-                protagonist.statIndex = 1;
+                strcpy(protag.job, "paladin");
+                protag.statIndex = 1;
                 break;
             case '2':
-                strcpy(protagonist.job, "berserker");
-                protagonist.statIndex = 2;
+                strcpy(protag.job, "berserker");
+                protag.statIndex = 2;
                 break;
             case '3':
-                strcpy(protagonist.job, "mage");
-                protagonist.statIndex = 3;
+                strcpy(protag.job, "mage");
+                protag.statIndex = 3;
                 break;
             case '4':
-                strcpy(protagonist.job, "cleric");
-                protagonist.statIndex = 4;
+                strcpy(protag.job, "cleric");
+                protag.statIndex = 4;
                 break;
             default:
                 printf("Say again?\n");
@@ -159,32 +160,207 @@ int main(){
     } while( !( ( (keypress >= '1') && (keypress <= '4') ) ) );
 
     //Once Player has selected their class, they level up from 0 to 1, setting their initial stats.
-    protagLevelUp(&protagonist);
+    protagLevelUp(&protag);
 
     //Main gameplay loop, where player either encounters monsters to fight or explores the world.
     do {
-        do{
-            printf("You are in a thick forest. What do you do?\n");
+        while(protag.area == 0){
+            printf("\nYou are in a thick forest. What do you do?\n");
             printf("1. Explore    2. Check Stats\n");
 
             scanf(" %c", &keypress);
 
             switch(keypress){
                 case '1':
-                    if((rand() % 100) >= 50){
-                        encounterMonster(protagonist);
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
                     }
                     else{
-                        exploreForest();
+                        exploreForest(&protag);
                     }
                     break;
                 case '2':
-                    checkStats(protagonist);
+                    checkStats(protag);
                     break;
                 default:
                     printf("Say again?\n");
             }
-        }while(keypress == '1'|| keypress == '2');
+        }
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+
+    do{
+        while(protag.area == 1){
+            printf("\nYou are surrounded by an endless cave system. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
+
+            scanf(" %c", &keypress);
+
+            switch(keypress){
+                case '1':
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
+                    }
+                    else{
+                        exploreCave(&protag);
+                    }
+                    break;
+                case '2':
+                    checkStats(protag);
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+
+    do{
+        while(protag.area == 2){
+            printf("\nYou find yourself in a deserted village. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
+
+            scanf(" %c", &keypress);
+
+            switch(keypress){
+                case '1':
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
+                    }
+                    else{
+                        exploreTown(&protag);
+                    }
+                    break;
+                case '2':
+                    checkStats(protag);
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+
+    do{
+        while(protag.area == 3){
+            printf("\nYou are lost in the billowing mist of the graveyard. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
+
+            scanf(" %c", &keypress);
+
+            switch(keypress){
+                case '1':
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
+                    }
+                    else{
+                        exploreGraveyard(&protag);
+                    }
+                    break;
+                case '2':
+                    checkStats(protag);
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+
+    do{
+        while(protag.area == 4){
+            printf("\nYou look around to find you are in a sweeping mountain range. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
+
+            scanf(" %c", &keypress);
+
+            switch(keypress){
+                case '1':
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
+                    }
+                    else{
+                        exploreMountain(&protag);
+                    }
+                    break;
+                case '2':
+                    checkStats(protag);
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+
+    do{
+        while(protag.area == 5){
+            printf("\nYou search your surroundings for a way out of the marsh. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
+
+            scanf(" %c", &keypress);
+
+            switch(keypress){
+                case '1':
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
+                    }
+                    else{
+                        exploreMarsh(&protag);
+                    }
+                    break;
+                case '2':
+                    checkStats(protag);
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+
+    do{
+        while(protag.area == 6){
+            printf("\nThe blazing sun beats down on you as you move. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
+
+            scanf(" %c", &keypress);
+
+            switch(keypress){
+                case '1':
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
+                    }
+                    else{
+                        exploreDesert(&protag);
+                    }
+                    break;
+                case '2':
+                    checkStats(protag);
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }
+    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+
+    do{
+        while(protag.area == 7){
+            printf("\nYou have arrived at the foot of the volcano, preparing for the final battle. What do you do?\n");
+            printf("1. Explore    2. Check Stats\n");
+
+            scanf(" %c", &keypress);
+
+            switch(keypress){
+                case '1':
+                    if((rand() % 100) >= 70){
+                        encounterMonster(protag);
+                    }
+                    else{
+                        exploreVolcano(&protag);
+                    }
+                    break;
+                case '2':
+                    checkStats(protag);
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }
     } while( !( (keypress >= '1') && (keypress <= '2') ) );
 
     return 0;
@@ -245,7 +421,7 @@ void protagLevelUp(charInformation *protag){
 }
 
 
-void exploreForest(){
+void exploreForest(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -266,6 +442,7 @@ void exploreForest(){
             switch(insideKeypress){
             case '1':
                 printf("You venture further down the path and find yourself lost in a branching cave system.\n");
+                protag->area = 1;
                 break;
             case '2':
                 printf("You turn around and retrace your steps.\n");
@@ -285,6 +462,7 @@ void exploreForest(){
             switch(insideKeypress){
             case '1':
                 printf("You head towards the village only to find it deserted.\n");
+                protag->area = 2;
                 break;
             case '2':
                 printf("You continue to wander around the forest.\n");
@@ -303,7 +481,7 @@ void exploreForest(){
 
 }
 
-void exploreCave(){
+void exploreCave(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -324,6 +502,7 @@ void exploreCave(){
             switch(insideKeypress){
             case '1':
                 printf("You follow the mineshaft to the surface and are surrounded by mountains on every side.\n");
+                protag->area = 4;
                 break;
             case '2':
                 printf("You turn around continue to explore the cave system.\n");
@@ -344,6 +523,7 @@ void exploreCave(){
             switch(insideKeypress){
             case '1':
                 printf("You run haphazardly into the mist.\n");
+                protag->area = 3;
                 break;
             case '2':
                 printf("You cautiously make your way back into the caves.\n");
@@ -361,7 +541,7 @@ void exploreCave(){
 
 }
 
-void exploreTown(){
+void exploreTown(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -382,6 +562,7 @@ void exploreTown(){
             switch(insideKeypress){
             case '1':
                 printf("You follow the path into the valley.\n");
+                protag->area = 4;
                 break;
             case '2':
                 printf("You turn around and return to the village.\n");
@@ -402,6 +583,7 @@ void exploreTown(){
             switch(insideKeypress){
             case '1':
                 printf("You enter the mist near the edge of the town.\n");
+                protag->area = 3;
                 break;
             case '2':
                 printf("You continue to search the village.\n");
@@ -419,7 +601,7 @@ void exploreTown(){
 
 }
 
-void exploreGraveyard(){
+void exploreGraveyard(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -440,6 +622,7 @@ void exploreGraveyard(){
             switch(insideKeypress){
             case '1':
                 printf("You follow the river, lose your footing, and get swept away by the current.\n");
+                protag->area = 5;
                 break;
             case '2':
                 printf("You walk away from the river and lose yourself in the mist.\n");
@@ -460,6 +643,7 @@ void exploreGraveyard(){
             switch(insideKeypress){
             case '1':
                 printf("You keep moving until sand is the only thing you can see for miles.\n");
+                protag->area = 6;
                 break;
             case '2':
                 printf("You turn around and return to the endless mist.\n");
@@ -477,7 +661,7 @@ void exploreGraveyard(){
 
 }
 
-void exploreMountain(){
+void exploreMountain(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -498,6 +682,7 @@ void exploreMountain(){
             switch(insideKeypress){
             case '1':
                 printf("You follow the river until you are surrounded by marsh.\n");
+                protag->area = 5;
                 break;
             case '2':
                 printf("You walk past the river and explore the mountains.\n");
@@ -518,6 +703,7 @@ void exploreMountain(){
             switch(insideKeypress){
             case '1':
                 printf("You move forward towards the desert, hoping to find an oasis within.\n");
+                protag->area = 6;
                 break;
             case '2':
                 printf("You climb back up the mountain.\n");
@@ -535,7 +721,7 @@ void exploreMountain(){
 
 }
 
-void exploreMarsh(){
+void exploreMarsh(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -556,6 +742,7 @@ void exploreMarsh(){
             switch(insideKeypress){
             case '1':
                 printf("You walk towards the volcano, careful to not burn yourself from the spewing craters.\n");
+                protag->area = 7;
                 break;
             case '2':
                 printf("You are not ready to discover your fate and return to the marsh.\n");
@@ -573,7 +760,7 @@ void exploreMarsh(){
 
 }
 
-void exploreDesert(){
+void exploreDesert(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -594,6 +781,7 @@ void exploreDesert(){
             switch(insideKeypress){
             case '1':
                 printf("You walk towards the volcano, careful to not burn yourself from the spewing craters.\n");
+                protag->area = 7;
                 break;
             case '2':
                 printf("You are not ready to discover your fate and return to the desert.\n");
@@ -611,7 +799,7 @@ void exploreDesert(){
 
 }
 
-void exploreVolcano(){
+void exploreVolcano(charInformation *protag){
     int random;
     char insideKeypress;
 
@@ -633,7 +821,7 @@ void exploreVolcano(){
 
 }
 
-void encounterMonster(charInformation protagonist){
+void encounterMonster(charInformation protag){
     //2D array of strings storing filenames of all possible monsters
     //player could encounter in the area they are in.
     FILE *monsterFile;
@@ -680,10 +868,10 @@ void encounterMonster(charInformation protagonist){
         switch(insideKeypress){
             case '1':
                 printf("You move in to attack.\n");
-                battleEncounter(&protagonist, monsterStats, monsterName);
+                battleEncounter(&protag, monsterStats, monsterName);
                 break;
             case '2':
-                if(protagonist.speed >= monsterStats[2])
+                if(protag.speed >= monsterStats[2])
                 {
                     printf("You got away!\n");
                     break;
@@ -691,7 +879,7 @@ void encounterMonster(charInformation protagonist){
                 else
                 {
                     printf("You can't get away!\n");
-                    battleEncounter(&protagonist, monsterStats, monsterName);
+                    battleEncounter(&protag, monsterStats, monsterName);
                 }
                 break;
             default:
