@@ -12,9 +12,6 @@
 #define  MAX_NUM_MONSTER_STATS 5
 #define  MAX_NUM_PROTAG_STATS_FROM_FILE 5
 
-#define  ALIVE 1
-#define  DEAD  0
-
 typedef struct{
     char name[30];          //This will save the user's declared name
     char gender[7];         //This saves their gender
@@ -39,7 +36,7 @@ typedef struct{
 void protagLevelUp(charInformation *protag);
 
 //This function randomizes which monster a player will encounter, depending on the area
-void encounterMonster(charInformation protag);
+void encounterMonster(charInformation *protag);
 
 //This function will be used whenever the player checks their stats
 void checkStats(charInformation stats);
@@ -55,10 +52,11 @@ void exploreDesert(charInformation *protag);
 void exploreVolcano(charInformation *protag);
 
 //This function gets called every time the player encounters a monster and chooses to fight or fails to flee
-void battleEncounter(charInformation *protag, int monsterStats[], char *monsterName);
+void battleEncounter(charInformation *protag, int monsterStats[], char monsterName[]);
 
-//This function controls the battle sequence whenever the player fights an enemy
-//void battleEncounter(charInformation *protag, monsterStats[MAX_NUM_MONSTER_STATS]);
+//These function determine the damage inflicted or received, respectively
+void playerAttacksMonster(charInformation *protag, int monsterStats[], char monsterName[]);
+void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char monsterName[]);
 
 //Character information struct is used to set the base attributes
 //and information of various entities.
@@ -69,7 +67,7 @@ int main(){
     //Any information directly regarding the playable character
     //should edit only the protag variable.
     charInformation protag;
-    protag.level = 0; protag.speed = 0; protag.currentExperience = 0; protag.neededExperience = 0; protag.area = 0;
+    protag.level = 0; protag.speed = 0; protag.currentExperience = 0; protag.neededExperience = 0; protag.area = 0; protag.physicalPower = 0; protag.magicalPower = 0;
     char keypress;
 
     //Here we set up the randomizer for later in the program
@@ -173,7 +171,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreForest(&protag);
@@ -198,7 +196,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreCave(&protag);
@@ -223,7 +221,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreTown(&protag);
@@ -248,7 +246,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreGraveyard(&protag);
@@ -273,7 +271,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreMountain(&protag);
@@ -298,7 +296,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreMarsh(&protag);
@@ -323,7 +321,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreDesert(&protag);
@@ -348,7 +346,7 @@ int main(){
             switch(keypress){
                 case '1':
                     if((rand() % 100) >= 70){
-                        encounterMonster(protag);
+                        encounterMonster(&protag);
                     }
                     else{
                         exploreVolcano(&protag);
@@ -370,6 +368,8 @@ void checkStats(charInformation stats){
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("You are a %s %s named %s, and you are a %s.\n", stats.gender, stats.race, stats.name, stats.job);
     printf("Your current health is: %3d/%d\n", stats.currentHP, stats.maxHP);
+    printf("Your physical power is: %d\n", stats.physicalPower);
+    printf("Your magical power is: %d\n", stats.magicalPower);
     printf("Your current mana is:   %3d/%d\n", stats.currentMana, stats.maxMana);
     printf("You can move at a speed of %d.\n", stats.speed);
     printf("You are currently level %d, %d experience points out of %d from leveling up.\n", stats.level, stats.currentExperience, stats.neededExperience);
@@ -419,7 +419,6 @@ void protagLevelUp(charInformation *protag){
 
     fclose(statsFile);
 }
-
 
 void exploreForest(charInformation *protag){
     int random;
@@ -821,18 +820,17 @@ void exploreVolcano(charInformation *protag){
 
 }
 
-void encounterMonster(charInformation protag){
+void encounterMonster(charInformation *protag){
     //2D array of strings storing filenames of all possible monsters
     //player could encounter in the area they are in.
     FILE *monsterFile;
     FILE *monsterInfo;
     char possibleMonsters[MAX_MONSTERS_IN_AREA][50];
     //monsterStats info at each index-
-    //0: ; 1: ; 2: ; 3: ; 4:
+    //0: HP Current; 1: Attack Power; 2: Speed; 3: EXP Reward ; 4: Gold Reward
     int monsterStats[MAX_NUM_MONSTER_STATS], i;
     char monsterName[30];
     char insideKeypress;
-    charInformation  *temp;
 
     //This opens up a text document that contains the names of the text files of all possible monsters in a given area
     monsterFile = fopen("possibleMonstersInForest.txt", "r");
@@ -868,10 +866,10 @@ void encounterMonster(charInformation protag){
         switch(insideKeypress){
             case '1':
                 printf("You move in to attack.\n");
-                battleEncounter(&protag, monsterStats, monsterName);
+                battleEncounter(protag, monsterStats, monsterName);
                 break;
             case '2':
-                if(protag.speed >= monsterStats[2])
+                if(protag->speed >= monsterStats[2])
                 {
                     printf("You got away!\n");
                     break;
@@ -879,7 +877,7 @@ void encounterMonster(charInformation protag){
                 else
                 {
                     printf("You can't get away!\n");
-                    battleEncounter(&protag, monsterStats, monsterName);
+                    battleEncounter(protag, monsterStats, monsterName);
                 }
                 break;
             default:
@@ -892,46 +890,135 @@ void encounterMonster(charInformation protag){
     fclose(monsterInfo);
 }
 
-void battleEncounter(charInformation *protag, int monsterStats[], char *monsterName){
-    int monster = ALIVE;
-    int player  = ALIVE;
+void battleEncounter(charInformation *protag, int monsterStats[], char monsterName[]){
+    char insideKeypress;
 
-    printf("%d %d %d %d %d\n", monsterStats[0], monsterStats[1], monsterStats[2], monsterStats[3], monsterStats[4]);
+    do{
+        printf("You are fighting a %s, which is down to %d HP.\n", monsterName, monsterStats[0]);
 
-    while(monster == ALIVE && player == ALIVE)
+        //Basic actions, available to all jobs
+        do{
+            printf("You approach the monster, and as a %s choose to:\n\n", protag->job);
+
+            printf("1. Attack    2. Defend    3. Run\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+                case('1'):
+                    printf("You attempt to attack the %s!\n", monsterName);
+
+                    //Whoever is faster attacks first (i.e. potentially deals damage first)
+                    if( protag->speed >= monsterStats[2] ){
+                        playerAttacksMonster(protag, monsterStats, monsterName);
+                        monsterAttacksPlayer(protag, monsterStats, monsterName);
+                    }
+                    else{
+                        monsterAttacksPlayer(protag, monsterStats, monsterName);
+                        playerAttacksMonster(protag, monsterStats, monsterName);
+                    }
+                    break;
+                case('2'):
+                    printf("You attempt to defend against the monster's attack!\n");
+                    break;
+                case('3'):
+                    break;
+                default: printf("Say again?\n");;
+            }
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '3') ) );
+    } while( (protag->currentHP >= 0) && (monsterStats[0] >= 0) );
+
+    /*while(monster == ALIVE && player == ALIVE)
     {
         printf("You approach the monster, and as a %s choose to:\n\n", protag->job);
         if( strcmp(protag->job, "paladin") == 0 )
         {
             printf("1. Swing Your Longsword    2. Shield    3. Magical Spark    4. Moderate Heal\n");
-            player = DEAD;
         }
         else if( strcmp(protag->job, "berserker") == 0 )
         {
             printf("1. Swing Your Axes    2. Block    3. Conjure Throwing Knives    4. Damage Buff\n");
-            player = DEAD;
         }
         else if( strcmp(protag->job, "mage") == 0 )
         {
             printf("1. Swing Your Dagger    2. Summon A Shield    3. Summon Elemental Shards    4. Minor Heal\n");
-            player = DEAD;
         }
         else if( strcmp(protag->job, "cleric") == 0 )
         {
             printf("1. Swing Your Staff   2. Conjure A Barrier    3. Fire Magic Missiles    4. Major Heal\n");
-            player = DEAD;
         }
-    }
+    }*/
 
-    if(monster == DEAD)
+    if( monsterStats[0] <= 0 )
     {
-        printf("You have defeated the %s\n", monsterName);
+        printf("You defeated the %s!\n", monsterName);
     }
-    else if(player == DEAD)
+    else if( protag->currentHP <= 0 )
     {
         printf("You have been slain in battle.\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GAME OVER~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
         exit(DEAD);
         //return DEAD;
+    }
+}
+
+void playerAttacksMonster(charInformation *protag, int monsterStats[], char monsterName[]){
+    int randDamageMod = 0, damageDealt;
+
+    //checks if player is alive. If not, returns early and no damage is calculated
+    if( protag->currentHP <= 0 ){
+        return;
+    }
+
+    //players have a flat 90 percent chance to hit monsters
+    if( (rand() % 100) >= 10){
+        //50-50 chance to to either inflict a little more or little less damage than average
+        if( (rand() % 100) >= 50 ){
+            randDamageMod = -1;
+        }
+        else{
+            randDamageMod = 1;
+        }
+
+        //uses physical power or magical power depending on the protag's job
+        if( (strcmp(protag->job, "paladin") == 0) || (strcmp(protag->job, "berserker") == 0) ){
+            damageDealt = protag->physicalPower + randDamageMod * ( ( protag->physicalPower * (rand() % 20) ) / 100 ) ;
+            monsterStats[0] -= damageDealt;
+            printf("You hurt the %s for %d damage!\n", monsterName, damageDealt);
+        }
+        else if( (strcmp(protag->job, "cleric") == 0) || (strcmp(protag->job, "mage") == 0) ){
+            damageDealt = protag->magicalPower + randDamageMod * ( ( protag->magicalPower * (rand() % 20) ) / 100 ) ;
+            monsterStats[0] -= damageDealt;
+            printf("You hurt the %s for %d damage!\n", monsterName, damageDealt);
+        }
+    }
+    else{
+        printf("You missed the %s!\n", monsterName);
+    }
+}
+
+void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char monsterName[]){
+    int randDamageMod = 0, damageDealt;
+
+    //checks if monster is alive. If not, returns early and no damage is calculated
+    if( monsterStats[0] <= 0 ){
+        return;
+    }
+
+    //monsters have a flat 90 percent chance to hit monsters
+    if( (rand() % 100) >= 10){
+        //50-50 chance to to either inflict a little more or little less damage than average
+        if( (rand() % 100) >= 50 ){
+            randDamageMod = -1;
+        }
+        else{
+            randDamageMod = 1;
+        }
+
+        damageDealt = monsterStats[1] + randDamageMod * ( ( monsterStats[1] * (rand() % 20) ) / 100 ) ;
+        protag->currentHP -= damageDealt;
+        printf("The %s hurt you for %d damage!\n", monsterName, damageDealt);
+    }
+    else{
+        printf("The %s missed you!\n", monsterName);
     }
 }
