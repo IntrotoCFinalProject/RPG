@@ -109,20 +109,20 @@ int main(){
             case '1':
                 strcpy(protag.race, "human");
                 printf("Humans are an all-around race. They tend to favor all play styles, though not as much as more restrictive races.\n");
-                protag.maxHP = 15;
-                protag.maxMana = 10;
+                protag.maxHP = 5;
+                protag.maxMana = 4;
                 break;
             case '2':
                 strcpy(protag.race, "elf");
                 printf("Eves are a race that excel in magic and speed. They tend to favor mobile and magic orientated play styles.\n");
-                protag.maxHP = 11;
-                protag.maxMana = 13;
+                protag.maxHP = 4;
+                protag.maxMana = 5;
                 break;
             case '3':
                 strcpy(protag.race, "ork");
                 printf("Orks are brutal race. They prefer to use their brawn to solve most issues. They tend to favor melee and defensive play styles.\n");
-                protag.maxHP = 19;
-                protag.maxMana = 7;
+                protag.maxHP = 7;
+                protag.maxMana = 2;
                 break;
             default:
                 printf("Say again?\n");
@@ -368,11 +368,11 @@ void checkStats(charInformation stats){
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("You are a %s %s named %s, and you are a %s.\n", stats.gender, stats.race, stats.name, stats.job);
     printf("Your current health is: %3d/%d\n", stats.currentHP, stats.maxHP);
-    printf("Your physical power is: %3d\n", stats.physicalPower);
-    printf("Your magical power is: %3d\n", stats.magicalPower);
     printf("Your current mana is:   %3d/%d\n", stats.currentMana, stats.maxMana);
+    printf("Your physical power is:%3d\n", stats.physicalPower);
+    printf("Your magical power is: %3d\n", stats.magicalPower);
     printf("You can move at a speed of %d.\n", stats.speed);
-    printf("You are currently level %d, %d experience points out of %d from leveling up.\n", stats.level, stats.currentExperience, stats.neededExperience);
+    printf("You are currently level %d, %d out of %d experience from leveling up.\n", stats.level, stats.currentExperience, stats.neededExperience);
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 }
 
@@ -408,7 +408,7 @@ void protagLevelUp(charInformation *protag){
     //then increases the amount of exp needed for the next level up
     protag->level++;
     protag->currentExperience -= protag->neededExperience;
-    protag->neededExperience = protag->level * 100;
+    protag->neededExperience = protag->level * 50;
 
     for(i = 0; i < MAX_NUM_PROTAG_STATS_FROM_FILE; i++){
         fscanf(statsFile, "%d", &mod[i]);
@@ -900,22 +900,35 @@ void encounterMonster(charInformation *protag){
 
 void battleEncounter(charInformation *protag, int monsterStats[], char monsterName[]){
     char insideKeypress;
+    int  damageBuff = 0, overHP, healedHP, randMod = 0;
 
     do{
-        printf("You are fighting a %s, which is down to %d HP.\n", monsterName, monsterStats[0]);
-        printf("Your current HP is: %d/%d\n", protag->currentHP, protag->maxHP);
-        printf("Your current Mana is: %d/%d\n", protag->currentMana, protag->maxMana);
+        printf("You are fighting a %s, which has %d HP.\n", monsterName, monsterStats[0]);
+        printf("Your current HP is:  %3d/%d\n", protag->currentHP, protag->maxHP);
+        printf("Your current Mana is:%3d/%d\n", protag->currentMana, protag->maxMana);
 
         //Basic actions, available to all jobs
         do{
             printf("You approach the monster, and as a %s choose to:\n\n", protag->job);
 
-            printf("1. Attack    2. Dodge    3. Run\n");
+            printf("1. Attack    2. Dodge    3. Run    ");
+
+            //Any further actions are locked to specific jobs
+            if( strcmp(protag->job, "paladin") == 0 )
+                printf("4. Moderate Heal\n");
+            else if( strcmp(protag->job, "berserker") == 0 )
+                printf("4. Damage Buff\n");
+            else if( strcmp(protag->job, "mage") == 0 )
+                printf("4. Minor Heal\n");
+            else if( strcmp(protag->job, "cleric") == 0 )
+                printf("4. Major Heal\n");
+
             scanf(" %c", &insideKeypress);
+            printf("\n");
 
             switch(insideKeypress){
                 case('1'):
-                    printf("You attempt to attack the %s!\n", monsterName);
+                    printf("You attempt to attack the %s!\n\n", monsterName);
 
                     //Whoever is faster attacks first (i.e. potentially deals damage first)
                     if( protag->speed >= monsterStats[2] ){
@@ -948,9 +961,84 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                         monsterAttacksPlayer(protag, monsterStats, monsterName);
                     }
                     break;
+                case('4'):
+                    //50-50 chance to to either heal/damage a little more or a little less than average
+                    if( protag->level < 1){
+                        if( (rand() % 100) >= 50 ){
+                            randMod = -1;
+                        }
+                        else{
+                            randMod = 1;
+                        }
+                    }
+
+                    if( protag->level >= 4){
+                        if( (rand() % 100) >= 75 ){
+                            randMod = -2;
+                        }
+                        else if( (rand() % 100) >= 50 ){
+                            randMod = -2;
+                        }
+                        else if( (rand() % 100) >= 25 ){
+                            randMod = -2;
+                        }
+                        else{
+                            randMod = 2;
+                        }
+                    }
+
+                    //If the player is a paladin, they have access to a heal that refills half of their max health
+                    if( strcmp(protag->job, "paladin") == 0 ){
+                        //healedHP tracks the amount of health healed to inform the player
+                        healedHP = (protag->maxHP * .5) + randMod;
+                        protag->currentHP += (protag->maxHP * .5) + randMod;
+
+                        //If the heal goes over their max, their currentHP is set to maxHP and that difference is subtracted from healedHP
+                        if(protag->currentHP > protag->maxHP){
+                            overHP = protag->currentHP - protag->maxHP;
+                            protag->currentHP = protag->maxHP;
+                            healedHP -= overHP;
+                        }
+                        //Here the player learns how much health they gained
+                        printf("You healed %d HP!\n\n", healedHP);
+                    }
+                    else if( strcmp(protag->job, "berserker") == 0 ){
+                        //The berserker cannot heal, but can gain a temporary damage buff that lasts until the end of the fight
+                        damageBuff = protag->physicalPower + randMod;
+                        protag->physicalPower = (protag->physicalPower * 1.5) + .5 + randMod;
+                        damageBuff -= protag->physicalPower;
+
+                        printf("You now do %d damage with a %d damage buff!\n\n", protag->physicalPower, abs(damageBuff));
+                    }
+                    else if( strcmp(protag->job, "mage") == 0 ){
+                        //This process is the same as the paladin's heal, just slightly weaker
+                        healedHP = protag->maxHP * .33;
+                        protag->currentHP += (protag->maxHP * .33);
+
+                        if(protag->currentHP > protag->maxHP){
+                            overHP = protag->currentHP - protag->maxHP;
+                            protag->currentHP = protag->maxHP;
+                            healedHP -= overHP;
+                        }
+                        printf("You healed %d HP!\n\n", healedHP);
+                    }
+                    else if( strcmp(protag->job, "cleric") == 0 ){
+                        //This process is the same as the paladin's heal, just slightly stronger
+                        healedHP = protag->maxHP * .66;
+                        protag->currentHP += (protag->maxHP * .66);
+
+                        if(protag->currentHP > protag->maxHP){
+                            overHP = protag->currentHP - protag->maxHP;
+                            protag->currentHP = protag->maxHP;
+                            healedHP -= overHP;
+                        }
+                        printf("You healed %d HP!\n\n", healedHP);
+                    }
+                    monsterAttacksPlayer(protag, monsterStats, monsterName);
+                    break;
                 default: printf("Say again?\n");;
             }
-        } while( !( (insideKeypress >= '1') && (insideKeypress <= '3') ) );
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '4') ) );
     } while( (protag->currentHP > 0) && (monsterStats[0] > 0) );
 
     /*while(monster == ALIVE && player == ALIVE)
@@ -977,6 +1065,9 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
     if( monsterStats[0] <= 0 )
     {
         printf("You defeated the %s!\n", monsterName);
+
+        //Here the temporary buff is removed from the player, if they are not a berserker, 0 is added
+        protag->physicalPower += damageBuff;
 
         //Rewards player with appropriate amount of EXP and gold, then checks if there was a level up
         printf("The %s had %d gold on it, which you quickly pocket. You gain %d experience from the battle!\n", monsterName, monsterStats[4], monsterStats[3]);
@@ -1006,12 +1097,31 @@ void playerAttacksMonster(charInformation *protag, int monsterStats[], char mons
     //players have a flat 90 percent chance to hit monsters
     if( (rand() % 100) >= 10){
         //50-50 chance to to either inflict a little more or little less damage than average
-        if( (rand() % 100) >= 50 ){
-            randDamageMod = -1;
+        if( protag->level < 4){
+            if( (rand() % 100) >= 50 ){
+                randDamageMod = -1;
+            }
+            else{
+                randDamageMod = 1;
+            }
         }
-        else{
-            randDamageMod = 1;
-        }
+
+        //If the player reaches a high enough level, damage dealt has a slightly larger range
+        if( protag->level >= 4){
+            if( (rand() % 100) >= 75 ){
+                randDamageMod = -2;
+            }
+            else if( (rand() % 100) >= 50 ){
+                randDamageMod = -2;
+            }
+            else if( (rand() % 100) >= 25 ){
+                randDamageMod = -2;
+            }
+            else{
+                randDamageMod = 2;
+                }
+            }
+
 
         //uses physical power or magical power depending on the protag's job
         if( (strcmp(protag->job, "paladin") == 0) || (strcmp(protag->job, "berserker") == 0) ){
@@ -1041,12 +1151,29 @@ void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char mons
     //evasionChance is the the probability for a monster to miss an attack
     if( (rand() % 100) >= protag->evasionChance ){
         //50-50 chance to to either inflict a little more or little less damage than average
-        if( (rand() % 100) >= 50 ){
-            randDamageMod = -1;
-        }
-        else{
-            randDamageMod = 1;
-        }
+        if( protag->level < 4)
+            if( (rand() % 100) >= 50 ){
+                randDamageMod = -1;
+            }
+            else{
+                randDamageMod = 1;
+            }
+
+        //If the player reaches a high enough level, damage dealt has a slightly larger range
+        if( protag->level >= 4){
+            if( (rand() % 100) >= 75 ){
+                randDamageMod = -2;
+            }
+            else if( (rand() % 100) >= 50 ){
+                randDamageMod = -2;
+            }
+            else if( (rand() % 100) >= 25 ){
+                randDamageMod = -2;
+            }
+            else{
+                randDamageMod = 2;
+                }
+            }
 
         damageDealt = monsterStats[1] + randDamageMod * ( ( monsterStats[1] * (rand() % 20) ) / 100 ) ;
         protag->currentHP -= damageDealt;
