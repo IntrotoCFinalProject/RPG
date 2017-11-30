@@ -25,6 +25,7 @@ typedef struct{
     int  physicalPower;     //This stat will keep track of the damage done through melee
     int  magicalPower;      //This stat keeps track of magical damage
     int  speed;             //This stat tracks their speed to see who begins the fight
+    int  evasionChance;
     int  maxHP;             //This stat tracks the maximum health that the player can have
     int  currentHP;         //This stat checks the current health which will differ from max whenever the player is hurt
     int  maxMana;           //This stat controls the maximum mana the player can have
@@ -63,11 +64,10 @@ void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char mons
 //NOTE: all variables for characterInformation may not be used for a given variable.
 
 int main(){
-    //The protag variable is the character the plays controls.
-    //Any information directly regarding the playable character
-    //should edit only the protag variable.
+    //The protag variable is the character the plays controls. Any information directly regarding the playable character should edit only the protag variable.
     charInformation protag;
     protag.level = 0; protag.speed = 0; protag.currentExperience = 0; protag.neededExperience = 0; protag.area = 0; protag.physicalPower = 0; protag.magicalPower = 0;
+    protag.evasionChance = 10;
     char keypress;
 
     //Here we set up the randomizer for later in the program
@@ -368,8 +368,8 @@ void checkStats(charInformation stats){
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("You are a %s %s named %s, and you are a %s.\n", stats.gender, stats.race, stats.name, stats.job);
     printf("Your current health is: %3d/%d\n", stats.currentHP, stats.maxHP);
-    printf("Your physical power is: %d\n", stats.physicalPower);
-    printf("Your magical power is: %d\n", stats.magicalPower);
+    printf("Your physical power is: %3d\n", stats.physicalPower);
+    printf("Your magical power is: %3d\n", stats.magicalPower);
     printf("Your current mana is:   %3d/%d\n", stats.currentMana, stats.maxMana);
     printf("You can move at a speed of %d.\n", stats.speed);
     printf("You are currently level %d, %d experience points out of %d from leveling up.\n", stats.level, stats.currentExperience, stats.neededExperience);
@@ -381,8 +381,7 @@ void protagLevelUp(charInformation *protag){
     int   i;
     FILE *statsFile;
 
-    statsFile = fopen("jobStatsPerLevel.txt", "r");
-
+    //Opens text file depending on player's class
     if( strcmp(protag->job, "paladin") == 0 )
     {
         statsFile = fopen("ZpaladinStatsPerLevel.txt", "r");
@@ -400,8 +399,16 @@ void protagLevelUp(charInformation *protag){
         statsFile = fopen("ZclericStatsPerLevel.txt", "r");
     }
 
+    //prints out a message alerting the player they have leveled up, only if they aren't leveling up from level 0 to 1
+    if( protag->level != 0 ){
+        printf("Your level has increased from %d to %d!\n", protag->level, (protag->level + 1) );
+    }
+
+    //increments the player's level, subtracting the experience needed to level up from their current amount
+    //then increases the amount of exp needed for the next level up
     protag->level++;
-    protag->currentExperience = abs(protag->neededExperience - protag->currentExperience);
+    protag->currentExperience -= protag->neededExperience;
+    protag->neededExperience = protag->level * 100;
 
     for(i = 0; i < MAX_NUM_PROTAG_STATS_FROM_FILE; i++){
         fscanf(statsFile, "%d", &mod[i]);
@@ -414,6 +421,7 @@ void protagLevelUp(charInformation *protag){
     protag->maxHP         = mod[3] + protag->maxHP;
     protag->maxMana       = mod[4] + protag->maxMana;
 
+    //Heals the protag up to their max resource amounts
     protag->currentHP   = protag->maxHP;
     protag->currentMana = protag->maxMana;
 
@@ -848,7 +856,7 @@ void encounterMonster(charInformation *protag){
 
     //Here we access the monster's name from the appropriate file
     fscanf(monsterInfo, "%s", monsterName);
-    printf("You have encountered a %s!\n", monsterName);
+    printf("\nYou have encountered a %s!\n", monsterName);
 
     //Here we we retrieve the Monster's stats
     for(i = 0; i < MAX_NUM_MONSTER_STATS; i++){
@@ -865,7 +873,7 @@ void encounterMonster(charInformation *protag){
         //User decides whether to engage the monster or to flee. Fleeing only succeeds if protag is faster
         switch(insideKeypress){
             case '1':
-                printf("You move in to attack.\n");
+                printf("You move in to attack.\n\n");
                 battleEncounter(protag, monsterStats, monsterName);
                 break;
             case '2':
@@ -895,12 +903,14 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
 
     do{
         printf("You are fighting a %s, which is down to %d HP.\n", monsterName, monsterStats[0]);
+        printf("Your current HP is: %d/%d\n", protag->currentHP, protag->maxHP);
+        printf("Your current Mana is: %d/%d\n", protag->currentMana, protag->maxMana);
 
         //Basic actions, available to all jobs
         do{
             printf("You approach the monster, and as a %s choose to:\n\n", protag->job);
 
-            printf("1. Attack    2. Defend    3. Run\n");
+            printf("1. Attack    2. Dodge    3. Run\n");
             scanf(" %c", &insideKeypress);
 
             switch(insideKeypress){
@@ -911,25 +921,41 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                     if( protag->speed >= monsterStats[2] ){
                         playerAttacksMonster(protag, monsterStats, monsterName);
                         monsterAttacksPlayer(protag, monsterStats, monsterName);
+                        printf("\n");
                     }
                     else{
                         monsterAttacksPlayer(protag, monsterStats, monsterName);
                         playerAttacksMonster(protag, monsterStats, monsterName);
+                        printf("\n");
                     }
                     break;
                 case('2'):
-                    printf("You attempt to defend against the monster's attack!\n");
+                    printf("You attempt to dodge against the monster's attack!\n");
+
+                    //Player attempts to defend against the enemy, reducing the probability to be hit
+                    protag->evasionChance = 40;
+                    monsterAttacksPlayer(protag, monsterStats, monsterName);
+                    protag->evasionChance = 10;
                     break;
                 case('3'):
+                    //50 percent chance to flee the battle, if it fails the monster still atacks
+                    if( (rand() % 100) <= 50 ){
+                        printf("You got away!\n");
+                        return;
+                    }
+                    else{
+                        printf("You can't get away!\n\n");
+                        monsterAttacksPlayer(protag, monsterStats, monsterName);
+                    }
                     break;
                 default: printf("Say again?\n");;
             }
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '3') ) );
-    } while( (protag->currentHP >= 0) && (monsterStats[0] >= 0) );
+    } while( (protag->currentHP > 0) && (monsterStats[0] > 0) );
 
     /*while(monster == ALIVE && player == ALIVE)
     {
-        printf("You approach the monster, and as a %s choose to:\n\n", protag->job);
+        printf("You approach the monster, andprotagLevelUp(protag); as a %s choose to:\n\n", protag->job);
         if( strcmp(protag->job, "paladin") == 0 )
         {
             printf("1. Swing Your Longsword    2. Shield    3. Magical Spark    4. Moderate Heal\n");
@@ -951,13 +977,21 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
     if( monsterStats[0] <= 0 )
     {
         printf("You defeated the %s!\n", monsterName);
+
+        //Rewards player with appropriate amount of EXP and gold, then checks if there was a level up
+        printf("The %s had %d gold on it, which you quickly pocket. You gain %d experience from the battle!\n", monsterName, monsterStats[4], monsterStats[3]);
+        protag->currentExperience += monsterStats[3];
+        protag->gold += monsterStats[4];
+
+        if( protag->currentExperience >= protag->neededExperience ){
+            protagLevelUp(protag);
+        }
     }
     else if( protag->currentHP <= 0 )
     {
         printf("You have been slain in battle.\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GAME OVER~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
-        exit(DEAD);
-        //return DEAD;
+        exit(0);
     }
 }
 
@@ -1004,8 +1038,8 @@ void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char mons
         return;
     }
 
-    //monsters have a flat 90 percent chance to hit monsters
-    if( (rand() % 100) >= 10){
+    //evasionChance is the the probability for a monster to miss an attack
+    if( (rand() % 100) >= protag->evasionChance ){
         //50-50 chance to to either inflict a little more or little less damage than average
         if( (rand() % 100) >= 50 ){
             randDamageMod = -1;
