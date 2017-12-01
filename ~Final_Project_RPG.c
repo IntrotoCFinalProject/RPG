@@ -59,6 +59,8 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
 void playerAttacksMonster(charInformation *protag, int monsterStats[], char monsterName[]);
 void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char monsterName[]);
 
+void isAlive(charInformation *protag);
+
 //Character information struct is used to set the base attributes
 //and information of various entities.
 //NOTE: all variables for characterInformation may not be used for a given variable.
@@ -367,11 +369,12 @@ int main(){
 void checkStats(charInformation stats){
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("You are a %s %s named %s, and you are a %s.\n", stats.gender, stats.race, stats.name, stats.job);
-    printf("Your current health is: %3d/%d\n", stats.currentHP, stats.maxHP);
-    printf("Your current mana is:   %3d/%d\n", stats.currentMana, stats.maxMana);
-    printf("Your physical power is:%3d\n", stats.physicalPower);
-    printf("Your magical power is: %3d\n", stats.magicalPower);
-    printf("You can move at a speed of %d.\n", stats.speed);
+    printf("Your current stats are:\n");
+    printf(" %14d/%d HP\n", stats.currentHP, stats.maxHP);
+    printf(" %14d/%d Mana\n", stats.currentMana, stats.maxMana);
+    printf(" %17d Physical Power\n", stats.physicalPower);
+    printf(" %17d Magical Power\n", stats.magicalPower);
+    printf(" %17d Speed\n", stats.speed);
     printf("You are currently level %d, %d out of %d experience from leveling up.\n", stats.level, stats.currentExperience, stats.neededExperience);
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 }
@@ -429,7 +432,7 @@ void protagLevelUp(charInformation *protag){
 }
 
 void exploreForest(charInformation *protag){
-    int random;
+    int random, damageTaken, mushroom = 0;
     char insideKeypress;
 
     //We use a random number to determine the outcome of each exploration
@@ -439,8 +442,67 @@ void exploreForest(charInformation *protag){
     if (random >= 66){
         printf("You found some loot!\n");
     }
-    //If the number is between 33 and 65, the player advances
-    else if (random >= 33){
+
+    else if (random >= 30){
+        printf("Whilst walking through the forest you notice the tripwire just as you are about to trip it. What will you do?\n");
+        do{
+            printf("1. Try To Dodge    2. Block Some Damage\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                if(protag->speed > 10){
+                        if((rand() % 100) >= 50)
+                            printf("You get away from the trap in time and emerge unscathed!\n");
+                        else{
+                            damageTaken = (protag->maxHP * .25);
+                            protag->currentHP -= damageTaken;
+                            printf("You fail to get away from the trap in time and lost %d HP.\n", damageTaken);
+                            isAlive(protag);
+                        }
+                }
+                else{
+                    damageTaken = (protag->maxHP * .5);
+                    protag->currentHP -= damageTaken;
+                    printf("You fail to get away from the trap in time and lost %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            case '2':
+                damageTaken = (protag->maxHP * .25);
+                protag->currentHP -= damageTaken;
+                printf("You protect against most of the brunt damage from the trap and only lose %d HP.\n", damageTaken);
+                isAlive(protag);
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 15){
+        printf("You come across a magical spring. What will you do?\n");
+        do{
+            printf("1. Drink    2. Leave\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You drink from the spring, and it heals you to full health!\n");
+                protag->currentHP = protag->maxHP;
+                break;
+            case '2':
+                printf("You step away from the spring and delve back into the forest.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+    //If the number is between 5 and 15, the player can advance either to the caves or the town
+    else if (random >= 10){
         printf("You found a hidden path deep into the forest.\nWhat will you do?\n");
         do{
             printf("1. Follow The Path    2. Turn Back\n");
@@ -460,7 +522,7 @@ void exploreForest(charInformation *protag){
 
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
-    else if(random >= 10){
+    else if(random >= 5){
         printf("You see a village off in the distance.\nWhat will you do?\n");
         do{
             printf("1. Head Towards The Village    2. Turn Back\n");
@@ -483,7 +545,38 @@ void exploreForest(charInformation *protag){
 
     //If the number is between 0 and 32, nothing happens
     else{
-        printf("You found nothing and keep moving.\n");
+        printf("You find a strange blue mushroom on the ground. What will you do with it?\n");
+        do{
+            printf("1. Eat It    2. Leave It Be\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                if(mushroom == 0){
+                    printf("You eat the odd mushroom and suddenly.. You feel more powerful than ever!\n");
+                    protag->maxHP++;
+                    protag->currentHP++;
+                    protag->currentMana++;
+                    protag->maxMana++;
+                    protag->speed++;
+                    protag->physicalPower++;
+                    protag->magicalPower++;
+                    protag->currentExperience += 20;
+                    printf("You have gained +1 to every stat, but you won't always be so lucky...\n");
+                    mushroom++;
+                }
+                else{
+                    printf("You eat the odd mushroom and suddenly.. You feel extremely nauseous and nothing happened.\n");
+                }
+                break;
+            case '2':
+                printf("You step away from the spring and delve back into the forest.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
 
 }
@@ -500,7 +593,7 @@ void exploreCave(charInformation *protag){
         printf("You found some loot!\n");
     }
     //If the number is between 33 and 65, the player advances
-    else if (random >= 33){
+    else if (random >= 10){
         printf("You find a caved in mineshaft.\nWhat will you do?\n");
         do{
             printf("1. Move The Rubble    2. Turn Back\n");
@@ -521,7 +614,7 @@ void exploreCave(charInformation *protag){
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
 
-    else if(random >= 10){
+    else if(random >= 5){
         printf("You find a way out of the caves but cannot see past some mist.\nWhat will you do?\n");
         do{
             printf("1. Dash Into The Mist    2. Turn Back\n");
@@ -560,7 +653,7 @@ void exploreTown(charInformation *protag){
         printf("You found some loot!\n");
     }
     //If the number is between 33 and 65, the player advances
-    else if (random >= 33){
+    else if (random >= 10){
         printf("You find a path that leads into the mountain range.\nWhat will you do?\n");
         do{
             printf("1. Approach The Mountains    2. Turn Back\n");
@@ -581,7 +674,7 @@ void exploreTown(charInformation *protag){
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
 
-    else if(random >= 10){
+    else if(random >= 5){
         printf("You see mist billowing in the distance.\nWhat will you do?\n");
         do{
             printf("1. Approach The Mist    2. Turn Back\n");
@@ -620,7 +713,7 @@ void exploreGraveyard(charInformation *protag){
         printf("You found some loot!\n");
     }
     //If the number is between 33 and 65, the player advances
-    else if (random >= 33){
+    else if (random >= 10){
         printf("You spot a river leading out of the mist.\nWhat will you do?\n");
         do{
             printf("1. Follow The River    2. Turn Back\n");
@@ -641,7 +734,7 @@ void exploreGraveyard(charInformation *protag){
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
 
-    else if(random >= 10){
+    else if(random >= 5){
         printf("As you move forward, you find the mist begins to slowly clear as the air dries.\nWhat will you do?\n");
         do{
             printf("1. Keep Moving Forward    2. Turn Back\n");
@@ -680,7 +773,7 @@ void exploreMountain(charInformation *protag){
         printf("You found some loot!\n");
     }
     //If the number is between 33 and 65, the player advances
-    else if (random >= 33){
+    else if (random >= 10){
         printf("You find a river that leads out of the valley.\nWhat will you do?\n");
         do{
             printf("1. Follow The River    2. Turn Back\n");
@@ -701,7 +794,7 @@ void exploreMountain(charInformation *protag){
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
 
-    else if(random >= 10){
+    else if(random >= 5){
         printf("You slide down the mountain and find yourself at the foot of a desert.\nWhat will you do?\n");
         do{
             printf("1. Venture Into The Desert    2. Turn Back\n");
@@ -740,7 +833,7 @@ void exploreMarsh(charInformation *protag){
         printf("You found some loot!\n");
     }
     //If the number is between 33 and 65, the player advances
-    else if (random >= 33){
+    else if (random >= 5){
         printf("As you travel the marsh, you find scorched earth beneath your feet. You look forward and see a looming volcano.\nYou sense this is what you have been preparing for. What will you do?\n");
         do{
             printf("1. Approach The Volcano    2. Turn Back\n");
@@ -779,7 +872,7 @@ void exploreDesert(charInformation *protag){
         printf("You found some loot!\n");
     }
     //If the number is between 33 and 65, the player advances
-    else if (random >= 33){
+    else if (random >= 5){
         printf("As you explore the desert, you find it to be growing hotter. You notice a volcano spewing lava nearby.\nWill you approach the volcano and prepare for the end?\n");
         do{
             printf("1. Approach The Volcano    2. Turn Back\n");
@@ -1078,12 +1171,8 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
             protagLevelUp(protag);
         }
     }
-    else if( protag->currentHP <= 0 )
-    {
-        printf("You have been slain in battle.\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GAME OVER~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-
-        exit(0);
-    }
+    else
+        isAlive(protag);
 }
 
 void playerAttacksMonster(charInformation *protag, int monsterStats[], char monsterName[]){
@@ -1181,5 +1270,13 @@ void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char mons
     }
     else{
         printf("The %s missed you!\n", monsterName);
+    }
+}
+
+void isAlive(charInformation *protag){
+    if( protag->currentHP <= 0 )
+    {
+        printf("You have been slain.\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GAME OVER~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        exit(0);
     }
 }
