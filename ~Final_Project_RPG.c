@@ -70,7 +70,7 @@ void isAlive(charInformation *protag);
 int main(){
     //The protag variable is the character the plays controls. Any information directly regarding the playable character should edit only the protag variable.
     charInformation protag;
-    protag.level = 0; protag.speed = 0; protag.currentExperience = 0; protag.neededExperience = 0; protag.area = 0; protag.physicalPower = 0; protag.magicalPower = 0;
+    protag.level = 0; protag.currentExperience = 0; protag.neededExperience = 0; protag.area = 0; protag.physicalPower = 0; protag.magicalPower = 0;
     protag.evasionChance = 10;
     char keypress;
 
@@ -114,19 +114,22 @@ int main(){
                 strcpy(protag.race, "human");
                 printf("Humans are an all-around race. They tend to favor all play styles, though not as much as more restrictive races.\n");
                 protag.maxHP = 7;
-                protag.maxMana = 5;
+                protag.maxMana = 7;
+                protag.speed = 2;
                 break;
             case '2':
                 strcpy(protag.race, "elf");
                 printf("Eves are a race that excel in magic and speed. They tend to favor mobile and magic orientated play styles.\n");
                 protag.maxHP = 5;
-                protag.maxMana = 7;
+                protag.maxMana = 8;
+                protag.speed = 3;
                 break;
             case '3':
                 strcpy(protag.race, "ork");
                 printf("Orks are brutal race. They prefer to use their brawn to solve most issues. They tend to favor melee and defensive play styles.\n");
-                protag.maxHP = 9;
-                protag.maxMana = 3;
+                protag.maxHP = 12;
+                protag.maxMana = 5;
+                protag.speed = 1;
                 break;
             default:
                 printf("Say again?\n");
@@ -491,7 +494,7 @@ void exploreForest(charInformation *protag){
 
 
     else if (random >= 35){
-        printf("Whilst walking through the forest you notice the tripwire just as you are about to trip it. What will you do?\n");
+        printf("Whilst walking through the forest you notice the tripwire just as you are about to trip it. How will you react?\n");
         do{
             printf("1. Try To Dodge    2. Block Some Damage\n");
             scanf(" %c", &insideKeypress);
@@ -568,7 +571,7 @@ void exploreForest(charInformation *protag){
     }
     //If the number is between 5 and 15, the player can advance either to the caves or the town
     else if (random >= 10){
-        printf("You found a hidden path deep into the forest.\nWhat will you do?\n");
+        printf("You found a hidden path deep into the forest. What will you do?\n");
         do{
             printf("1. Follow The Path    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -647,19 +650,140 @@ void exploreForest(charInformation *protag){
 }
 
 void exploreCave(charInformation *protag){
-    int random, goldGained, rock = 0;
+    int random, goldGained, damageTaken, rock = 0;
     char insideKeypress;
 
     //We use a random number to determine the outcome of each exploration
     random = (rand() % 100);
 
     //If the number rolls 66 or above, the player finds loot
-    if (random >= 66){
+    if (random >= 85){
         printf("You found some loot!\n");
     }
 
+    else if (random >= 70){
+        printf("You are walking through the cave and feel yourself sink into the ground. You have just triggered a pressure plate! How will you react?\n");
+        do{
+            printf("1. Roll Away    2. Rip The Pressure Plate Out Of The Ground\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                if(protag->speed > 15){
+                        if((rand() % 100) >= 40)
+                            printf("You roll away from the trap in time and emerge unscathed!\n");
+                        else{
+                            damageTaken = (protag->maxHP * .2);
+                            protag->currentHP -= damageTaken;
+                            printf("You manage to mostly dodge the trap only losing %d HP.\n", damageTaken);
+                            isAlive(protag);
+                        }
+                }
+                else if(protag->speed >= 11){
+                        if((rand() % 100) >= 70){
+                            printf("You roll away from the trap in time and emerge unscathed!\n");
+                        }
+                        else{
+                            damageTaken = (protag->maxHP * .2);
+                            protag->currentHP -= damageTaken;
+                            printf("You manage to mostly dodge the trap only losing %d HP.\n", damageTaken);
+                            isAlive(protag);
+                        }
+                }
+                else{
+                    if (protag->physicalPower > 15){
+                        printf("You rip out the pressure plate, completely disabling the trap!\n");
+                    }
+                    else{
+                        damageTaken = (protag->maxHP * .5);
+                        protag->currentHP -= damageTaken;
+                        printf("You fail to get away from the trap in time and lost %d HP.\n", damageTaken);
+                        isAlive(protag);
+                    }
+                }
+                break;
+            case '2':
+                damageTaken = (protag->maxHP * .3);
+                protag->currentHP -= damageTaken;
+                printf("You protect against most of the brunt damage from the trap and only lose %d HP.\n", damageTaken);
+                isAlive(protag);
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 55){
+        printf("As you wander through the caves, you notice a shadowy corridor. What do you do?\n");
+        do{
+            printf("1. Walk Through The Corridor   2. Keep Moving\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+                case '1':
+                    printf("As you are walking down the corridor you ");
+                    if (rock == 1){
+                        printf("look down as the rock begin to glow.\nAs you keep walking, it leads you to a chasm filled with gold!\n");
+                        rock++;
+                        printf("After finding 100 gold, you feel more inspired for greatness. +1 to All Stats!\n");
+                        protag->gold += 100;
+                        protag->maxHP++;
+                        protag->maxMana++;
+                        protag->currentHP++;
+                        protag->currentMana++;
+                        protag->speed++;
+                        protag->physicalPower++;
+                        protag->magicalPower++;
+                    }
+                    else if((rand() % 100) >= 50){
+                        printf("find yourself back where you began but feel invigorated. You have healed back to full health and mana!\n");
+                        protag->currentHP = protag->maxHP;
+                        protag->currentMana = protag->maxMana;
+                    }
+                    else {
+                        printf("get lost and find yourself where you started.\n");
+                    }
+                    break;
+                case '2':
+                    printf("You ignore the corridor and keep walking.\n");
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 35){
+        printf("As you wander through the caves, you notice a shadowy corridor. What do you do?\n");
+        do{
+            printf("1. Walk Through The Corridor   2. Keep Moving\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+                case '1':
+                    printf("As you are walking down the corridor you ");
+                    if((rand() % 100) >= 50){
+                        printf("find yourself back where you began but feel invigorated. You have healed back to full health and mana!\n");
+                        protag->currentHP = protag->maxHP;
+                        protag->currentMana = protag->maxMana;
+                    }
+                    else {
+                        printf("get lost and find yourself where you started.\n");
+                    }
+                    break;
+                case '2':
+                    printf("You ignore the corridor and keep walking.\n");
+                    break;
+                default:
+                    printf("Say again?\n");
+            }
+        }while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
     else if (random >= 15){
-        printf("You find a pickaxe leaning against a wall of ore.\nWhat will you do?\n");
+        printf("You find a pickaxe leaning against a wall of ore. What will you do?\n");
         do{
             printf("1. Mine The Ore    2. Leave It Alone\n");
             scanf(" %c", &insideKeypress);
@@ -747,15 +871,19 @@ void exploreCave(charInformation *protag){
     }
     //If the number is between 0 and 32, nothing happens
     else{
-        printf("You find a shiny yellow rock and slip it into your pocket.\n");
-        rock = 1;
+        if(rock == 0){
+            printf("You find a shiny yellow rock and slip it into your pocket.\n");
+            rock++;
+        }
+        else
+            printf("You see a normal rock on the ground and kick it as you walk.\n");
     }
 
 }
 
 void exploreTown(charInformation *protag){
     int random;
-    char insideKeypress;
+    char insideKeypress, insiderKeypress;
 
     //We use a random number to determine the outcome of each exploration
     random = (rand() % 100);
@@ -764,9 +892,83 @@ void exploreTown(charInformation *protag){
     if (random >= 66){
         printf("You found some loot!\n");
     }
+    else if (random >= 40){
+
+    }
+    else if (random >= 15){
+        printf("You see that one of the doors to a house is slightly ajar. What will you do?\n");
+        do{
+            printf("1. Enter The House    2. Walk Past The House\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You slowly enter the house and look around. Where do you go?\n");
+                do{
+                    printf("1. The Bedroom    2. The Basement    3. The Kitchen    4. The Library\n");
+                    scanf(" %c", &insiderKeypress);
+
+                    switch(insiderKeypress){
+                    case '1':
+                        printf("You enter the bedroom and decide to take a nap in the empty bed.\n");
+                        if ((rand() % 100) >= 50){
+                            printf("You awake feeling refreshed and leave the house.");
+                            protag->currentHP = protag->maxHP;
+                            protag->currentMana = protag->maxMana;
+                        }
+                        else{
+                            printf("You wake up to monsters standing over you, poised to attack!\n");
+                            encounterMonster(protag);
+                            encounterMonster(protag);
+                            printf("You make a break for it and escape the house.\n");
+                        }
+                        break;
+                    case '2':
+                        printf("You enter the basement.. only to be assaulted by monsters!\n");
+                        encounterMonster(protag);
+                        encounterMonster(protag);
+                        encounterMonster(protag);
+                        printf("You make a break for it and escape the house.\n");
+                        break;
+                    case '3':
+                        printf("You enter the kitchen, find some ingredients, and cook up a meal.\n");
+                        if ( protag->magicalPower >= 12){
+                            printf("You make an astounding meal and regain full health and mana!\n");
+                            protag->currentHP = protag->maxHP;
+                            protag->currentMana = protag->maxMana;
+                        }
+                        else {
+                            printf("You create a mediocre meal that only bores you. You leave the house with slumped shoulders.\n");
+                        }
+                        break;
+                    case '4':
+                        printf("You enter the library and decide to flip through some books.\n");
+                        if ((rand() % 100) >= 50){
+                            printf("You learn a little more about magic and gained +1 Magical Power!\n");
+                            protag->magicalPower++;
+                        }
+                        else{
+                            printf("You learn new methods to beat slimes with sticks and gained +1 Physical Power!\n");
+                            protag->physicalPower++;
+                        }
+                        break;
+                    default:
+                        printf("Say again?\n");
+                    }
+                } while( !( (insideKeypress >= '1') && (insideKeypress <= '4') ) );
+                break;
+            case '2':
+                printf("You ignore the house and continue to investigate the village.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
     //If the number is between 33 and 65, the player advances
     else if (random >= 10){
-        printf("You find a path that leads into the mountain range.\nWhat will you do?\n");
+        printf("You find a path that leads into the mountain range. What will you do?\n");
         do{
             printf("1. Approach The Mountains    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -787,7 +989,7 @@ void exploreTown(charInformation *protag){
     }
 
     else if(random >= 5){
-        printf("You see mist billowing in the distance.\nWhat will you do?\n");
+        printf("You see mist billowing in the distance. What will you do?\n");
         do{
             printf("1. Approach The Mist    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -1169,7 +1371,6 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                 case('4'):
                     if( protag->currentMana >= USED_MANA_FOR_HEAL ){
                         protag->currentMana -= USED_MANA_FOR_HEAL;
-                        printf("%d current mana\n", protag->currentMana);
 
                         //50-50 chance to to either heal/damage a little more or a little less than average
                         if( protag->level < 1){
