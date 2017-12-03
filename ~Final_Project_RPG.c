@@ -680,33 +680,33 @@ void exploreCave(charInformation *protag){
                         }
                 }
                 else if(protag->speed >= 11){
-                        if((rand() % 100) >= 70){
-                            printf("You roll away from the trap in time and emerge unscathed!\n");
-                        }
-                        else{
-                            damageTaken = (protag->maxHP * .2);
-                            protag->currentHP -= damageTaken;
-                            printf("You manage to mostly dodge the trap only losing %d HP.\n", damageTaken);
-                            isAlive(protag);
-                        }
-                }
-                else{
-                    if (protag->physicalPower > 15){
-                        printf("You rip out the pressure plate, completely disabling the trap!\n");
+                    if((rand() % 100) >= 70){
+                        printf("You roll away from the trap in time and emerge unscathed!\n");
                     }
                     else{
-                        damageTaken = (protag->maxHP * .5);
+                        damageTaken = (protag->maxHP * .2);
                         protag->currentHP -= damageTaken;
-                        printf("You fail to get away from the trap in time and lost %d HP.\n", damageTaken);
+                        printf("You manage to mostly dodge the trap only losing %d HP.\n", damageTaken);
                         isAlive(protag);
                     }
                 }
+                else{
+                    damageTaken = (protag->maxHP * .5);
+                    protag->currentHP -= damageTaken;
+                    printf("You fail to get away from the trap in time and lost %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
                 break;
             case '2':
-                damageTaken = (protag->maxHP * .3);
-                protag->currentHP -= damageTaken;
-                printf("You protect against most of the brunt damage from the trap and only lose %d HP.\n", damageTaken);
-                isAlive(protag);
+                if (protag->physicalPower > 15){
+                    printf("You rip out the pressure plate, completely disabling the trap!\n");
+                }
+                else{
+                    damageTaken = (protag->maxHP * .5);
+                    protag->currentHP -= damageTaken;
+                    printf("You are not strong enough to pull out the pressure plate and lose %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
                 break;
             default:
                 printf("Say again?\n");
@@ -829,7 +829,7 @@ void exploreCave(charInformation *protag){
 
     //If the number is between 33 and 65, the player advances
     else if (random >= 10){
-        printf("You find a caved in mineshaft.\nWhat will you do?\n");
+        printf("You find a caved in mineshaft. What will you do?\n");
         do{
             printf("1. Move The Rubble    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -850,7 +850,7 @@ void exploreCave(charInformation *protag){
     }
 
     else if(random >= 5){
-        printf("You find a way out of the caves but cannot see past some mist.\nWhat will you do?\n");
+        printf("You find a way out of the caves but cannot see past some mist. What will you do?\n");
         do{
             printf("1. Dash Into The Mist    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -882,18 +882,105 @@ void exploreCave(charInformation *protag){
 }
 
 void exploreTown(charInformation *protag){
-    int random;
+    int random, damageTaken;
     char insideKeypress, insiderKeypress;
 
     //We use a random number to determine the outcome of each exploration
     random = (rand() % 100);
 
     //If the number rolls 66 or above, the player finds loot
-    if (random >= 66){
+    if (random >= 80){
         printf("You found some loot!\n");
     }
-    else if (random >= 40){
 
+    else if (random >= 60){
+        printf("You are walking through the town and spot a cellar. You enter the cellar and set off arrow traps! How will you react?\n");
+        do{
+            printf("1. Dodge The Arrows    2. Magically Destroy The Arrows\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                if(protag->speed > 15){
+                        if((rand() % 100) >= 40)
+                            printf("You dodge the arrows in time and emerge unscathed!\n");
+                        else{
+                            damageTaken = (protag->maxHP * .2);
+                            protag->currentHP -= damageTaken;
+                            printf("You manage to mostly dodge the arrows only losing %d HP.\n", damageTaken);
+                            isAlive(protag);
+                        }
+                }
+                else if(protag->speed >= 11){
+                        if((rand() % 100) >= 70){
+                            printf("You dodge the arrows in time and emerge unscathed!\n");
+                        }
+                        else{
+                            damageTaken = (protag->maxHP * .2);
+                            protag->currentHP -= damageTaken;
+                            printf("You manage to mostly dodge the arrows only losing %d HP.\n", damageTaken);
+                            isAlive(protag);
+                        }
+                }
+                else{
+                    damageTaken = (protag->maxHP * .5);
+                    protag->currentHP -= damageTaken;
+                    printf("You fail to dodge the arrows and lose %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            case '2':
+                if (protag->magicalPower > 15){
+                    printf("You shoot down the arrows with magic leaving you untouched!\n");
+                }
+                else{
+                    damageTaken = (protag->maxHP * .5);
+                    protag->currentHP -= damageTaken;
+                    printf("Your magical abilities are lacking, costing you %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 40){
+        printf("You find two fruits lying on the ground. Which one do you eat?\n");
+        do{
+            printf("1. The Red Fruit    2. The Blue Fruit\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You eat the red fruit, and ");
+                if ((rand() % 100) >= 50){
+                    printf("you gain 2 Physical Power!\n");
+                    protag->physicalPower = protag->physicalPower + 2;
+                }
+                else{
+                    printf("you lose 2 Physical Power!\n");
+                    protag->physicalPower = protag->physicalPower - 2;
+                }
+                break;
+            case '2':
+                printf("You eat the blue fruit, and ");
+                if ((rand() % 100) >= 50){
+                    printf("you gain 2 Magical Power!\n");
+                    protag->magicalPower = protag->magicalPower + 2;
+                }
+                else{
+                    printf("you lose 2 Magical Power!\n");
+                    protag->magicalPower = protag->magicalPower - 2;
+                }
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
     else if (random >= 15){
         printf("You see that one of the doors to a house is slightly ajar. What will you do?\n");
@@ -1010,25 +1097,168 @@ void exploreTown(charInformation *protag){
     }
     //If the number is between 0 and 32, nothing happens
     else{
-        printf("You found nothing and keep moving.\n");
+        printf("You find a sack of gold on the ground, earning you 10 gold!\n");
+        protag->gold = protag->gold + 10;
     }
 
 }
 
 void exploreGraveyard(charInformation *protag){
-    int random;
+    int random, grave = 0;
     char insideKeypress;
 
     //We use a random number to determine the outcome of each exploration
     random = (rand() % 100);
 
     //If the number rolls 66 or above, the player finds loot
-    if (random >= 66){
+    if (random >= 80){
         printf("You found some loot!\n");
     }
+
+    else if (random >= 65){
+        printf("While walking through the mist, you accidentally trip and fall.. into an open grave! You notice creatures approaching from the mist. What will you do?\n");
+        do{
+            printf("1. Face The Monsters    2. Play Dead\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                if (protag->physicalPower > 19){
+                    printf("Your pure brawn scares the monsters away!\n");
+                }
+                else if (protag->physicalPower >= 15){
+                    printf("Your fearlessness frightens some of the monsters away, leaving only a few stragglers.\n");
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                }
+                else {
+                    printf("Your form is.. less than menacing. The monsters forward in an attempt to claim another life.\n");
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                }
+                break;
+            case '2':
+                if (protag->magicalPower > 16){
+                    printf("You cast an illusion making it appear as though you are a rotting corpse.. and it works!\n");
+                }
+                else{
+                    damageTaken = (protag->maxHP * .35);
+                    protag->currentHP -= damageTaken;
+                    printf("Playing dead works.. until a couple of enemies fall on top of you. You climb out and run as far as you can, losing %d HP in the process.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 50){
+        printf("You find a shallow pool of water in the middle of the mist. You notice the stillness in the air and decide to take advantage of it. What do you do?\n");
+        do{
+            printf("1. Meditate    2. Drink The Water\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You sit next to the water and begin to meditate.\n");
+                if ((rand() % 100) >= 25){
+                    printf("You finish meditating feeling completely whole once again!\n");
+                    protag->currentHP = protag->maxHP;
+                    protag->currentMana = protag->maxMana;
+                }
+                else {
+                    printf("You try to meditate, but cannot stay focused due to trickling water nearby.\n");
+                }
+                break;
+            case '2':
+                printf("You drink the water and.. nothing happened. It's just a regular pool of water.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+
     //If the number is between 33 and 65, the player advances
+    else if (random >= 35){
+        printf("Through the mist, you see the outline of a structure. As you move closer, you realize it is a mausoleum. What will you do?\n");
+        do{
+            printf("1. Enter The Mausoleum    2. Pass It\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You enter the mausoleum only to find monsters contained within! Who could have guessed?\n");
+                if ((rand() % 100) >= 30){
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                }
+                else if ((rand() % 100) >= 5){
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                }
+                else {
+                    printf("Turns out, you interrupted a very important meeting. You have quite the ordeal ahead.\n");
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                }
+                break;
+            case '2':
+                printf("You choose to pass the mausoleum, fearing potential monsters within.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 15){
+        printf("Whilst wondering the mist, you find a shallow grave. What will you do?\n");
+        do{
+            printf("1. Dig Up The Grave    2. Keep Walking\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You decide to dig up the grave and at the bottom you find \n");
+                if ((rand() % 100) >= 66){
+                    printf("monsters lurking in wait!\n");
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                }
+                else if ((rand() % 100) >= 33){
+                    printf("nothing! You decide to keep moving.");
+                }
+                else {
+                    printf("gold! You find 20 gold and swiftly add it to the rest.\n");
+                    protag->gold = protag->gold;
+                }
+                break;
+            case '2':
+                printf("You walk past the grave and move further into the mist.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
     else if (random >= 10){
-        printf("You spot a river leading out of the mist.\nWhat will you do?\n");
+        printf("You spot a river leading out of the mist. What will you do?\n");
         do{
             printf("1. Follow The River    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -1049,7 +1279,7 @@ void exploreGraveyard(charInformation *protag){
     }
 
     else if(random >= 5){
-        printf("As you move forward, you find the mist begins to slowly clear as the air dries.\nWhat will you do?\n");
+        printf("As you move forward, you find the mist begins to slowly clear as the air dries. What will you do?\n");
         do{
             printf("1. Keep Moving Forward    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -1070,7 +1300,13 @@ void exploreGraveyard(charInformation *protag){
     }
     //If the number is between 0 and 32, nothing happens
     else{
-        printf("You found nothing and keep moving.\n");
+        if (grave == 0){
+            printf("You find a grave with the name %s. Disturbed by this, you destroy the headstone and keep moving.\n", protag->name);
+            grave++;
+        }
+        else{
+            printf("You see the remains of the headstone you smashed and keep moving.\n");
+        }
     }
 
 }
