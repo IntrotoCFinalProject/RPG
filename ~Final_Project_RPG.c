@@ -1,6 +1,5 @@
-//Cesar Ruiz & Sean Snyder
-//COP 3223H
-//Final Project
+//Cesar Ruiz & Sean Snyder, COP 3223H, Section 202
+//Final Project, December 4, 2017
 
 #include <stdio.h>
 #include <string.h>
@@ -591,7 +590,7 @@ void exploreForest(charInformation *protag){
         } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
     else if(random >= 5){
-        printf("You see a village off in the distance.\nWhat will you do?\n");
+        printf("You see a village off in the distance. What will you do?\n");
         do{
             printf("1. Head Towards The Village    2. Turn Back\n");
             scanf(" %c", &insideKeypress);
@@ -638,7 +637,7 @@ void exploreForest(charInformation *protag){
                 }
                 break;
             case '2':
-                printf("You step away from the spring and delve back into the forest.\n");
+                printf("You leave the mushroom alone and continue further into the forest.\n");
                 break;
             default:
                 printf("Say again?\n");
@@ -662,7 +661,7 @@ void exploreCave(charInformation *protag){
     }
 
     else if (random >= 70){
-        printf("You are walking through the cave and feel yourself sink into the ground. You have just triggered a pressure plate! How will you react?\n");
+        printf("You are walking through the cave and feel yourself sink into the ground. You have just triggered a pressure plate!\nHow will you react?\n");
         do{
             printf("1. Roll Away    2. Rip The Pressure Plate Out Of The Ground\n");
             scanf(" %c", &insideKeypress);
@@ -691,7 +690,7 @@ void exploreCave(charInformation *protag){
                     }
                 }
                 else{
-                    damageTaken = (protag->maxHP * .5);
+                    damageTaken = (protag->maxHP * .35);
                     protag->currentHP -= damageTaken;
                     printf("You fail to get away from the trap in time and lost %d HP.\n", damageTaken);
                     isAlive(protag);
@@ -702,7 +701,7 @@ void exploreCave(charInformation *protag){
                     printf("You rip out the pressure plate, completely disabling the trap!\n");
                 }
                 else{
-                    damageTaken = (protag->maxHP * .5);
+                    damageTaken = (protag->maxHP * .35);
                     protag->currentHP -= damageTaken;
                     printf("You are not strong enough to pull out the pressure plate and lose %d HP.\n", damageTaken);
                     isAlive(protag);
@@ -923,7 +922,7 @@ void exploreTown(charInformation *protag){
                         }
                 }
                 else{
-                    damageTaken = (protag->maxHP * .5);
+                    damageTaken = (protag->maxHP * .35);
                     protag->currentHP -= damageTaken;
                     printf("You fail to dodge the arrows and lose %d HP.\n", damageTaken);
                     isAlive(protag);
@@ -934,7 +933,7 @@ void exploreTown(charInformation *protag){
                     printf("You shoot down the arrows with magic leaving you untouched!\n");
                 }
                 else{
-                    damageTaken = (protag->maxHP * .5);
+                    damageTaken = (protag->maxHP * .35);
                     protag->currentHP -= damageTaken;
                     printf("Your magical abilities are lacking, costing you %d HP.\n", damageTaken);
                     isAlive(protag);
@@ -1104,7 +1103,7 @@ void exploreTown(charInformation *protag){
 }
 
 void exploreGraveyard(charInformation *protag){
-    int random, grave = 0;
+    int random, damageTaken, grave = 0;
     char insideKeypress;
 
     //We use a random number to determine the outcome of each exploration
@@ -1312,15 +1311,245 @@ void exploreGraveyard(charInformation *protag){
 }
 
 void exploreMountain(charInformation *protag){
-    int random;
-    char insideKeypress;
+    int random, damageTaken;
+    char insideKeypress, insiderKeypress;
 
     //We use a random number to determine the outcome of each exploration
     random = (rand() % 100);
 
     //If the number rolls 66 or above, the player finds loot
-    if (random >= 66){
+    if (random >= 80){
         printf("You found some loot!\n");
+    }
+
+    else if (random >= 65){
+        printf("You find a crevice in the mountain with varying sizes of rocks and decide to build up some strength. What kind of strength will you work out?\n");
+        do{
+            printf("1. Physical Power    2. Magical Power\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You choose to build up your physical power. What size rock do you train with?\n");
+                do{
+                    printf("1. Small    2. Medium    3. Large\n");
+                    scanf(" %c", &insiderKeypress);
+
+                    switch(insiderKeypress){
+                    case '1':
+                        printf("You train using a small rock and gain +1 physical power.\n");
+                        protag->physicalPower = protag->physicalPower + 1;
+                        break;
+                    case '2':
+                        if (protag->physicalPower >= 15){
+                            printf("You train using a small rock and gain +2 physical power.\n");
+                            protag->physicalPower = protag->physicalPower + 2;
+                        }
+                        else{
+                            damageTaken = (protag->maxHP * .1);
+                            protag->currentHP -= damageTaken;
+                            printf("You are not strong enough to train with this rock and hurt yourself for %d HP.\n", damageTaken);
+                        }
+                        break;
+                    case '3':
+                        if (protag->physicalPower >= 18){
+                            printf("You train using a small rock and gain +3 physical power.\n");
+                            protag->physicalPower = protag->physicalPower + 3;
+                        }
+                        else{
+                            damageTaken = (protag->maxHP * .25);
+                            protag->currentHP -= damageTaken;
+                            printf("You are not strong enough to train with this rock and hurt yourself for %d HP.\n", damageTaken);
+                        }
+                        break;
+                    default:
+                        printf("Say again?\n");
+                    }
+
+                } while( !( (insideKeypress >= '1') && (insideKeypress <= '3') ) );
+                break;
+            case '2':
+                printf("You choose to build up your magical power. What size rock do you train with?\n");
+                do{
+                    printf("1. Small    2. Medium    3. Large\n");
+                    scanf(" %c", &insiderKeypress);
+
+                    switch(insiderKeypress){
+                    case '1':
+                        printf("You train using a small rock and gain +1 magical power.\n");
+                        protag->magicalPower = protag->magicalPower + 1;
+                        break;
+                    case '2':
+                        if (protag->magicalPower >= 15){
+                            printf("You train using a small rock and gain +2 magical power.\n");
+                            protag->magicalPower = protag->magicalPower + 2;
+                        }
+                        else{
+                            damageTaken = (protag->maxHP * .1);
+                            protag->currentHP -= damageTaken;
+                            printf("You are not strong enough to train with this rock and hurt yourself for %d HP.\n", damageTaken);
+                        }
+                        break;
+                    case '3':
+                        if (protag->magicalPower >= 18){
+                            printf("You train using a small rock and gain +3 physical power.\n");
+                            protag->magicalPower = protag->magicalPower + 3;
+                        }
+                        else{
+                            damageTaken = (protag->maxHP * .25);
+                            protag->currentHP -= damageTaken;
+                            printf("You are not strong enough to train with this rock and hurt yourself for %d HP.\n", damageTaken);
+                        }
+                        break;
+                    default:
+                        printf("Say again?\n");
+                    }
+
+                } while( !( (insideKeypress >= '1') && (insideKeypress <= '3') ) );
+                break;
+            default:
+                printf("Say again?\n");
+            }
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 50){
+        printf("As you are walking you begin to feel tremors. You turn around and see a gigantic boulder rolling your way! How will you react?\n");
+        do{
+            printf("1. Duck Into A Nearby Cave    2. Charge At The Boulder\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                if (protag->speed >= 15){
+                    printf("You duck into a nearby cave avoiding the boulder.\n");
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                    encounterMonster(protag);
+                }
+                else{
+                    damageTaken = (protag->maxHP * .35);
+                    protag->currentHP -= damageTaken;
+                    printf("You fail to make it to the cave, getting knocked down the mountain by the boulder in the process at the cost of %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            case '2':
+                printf("You rely on overwhelming strength and charge at the boulder.\n");
+                if(protag->physicalPower >= 18){
+                    printf("You completely demolish the boulder! Feeling pretty good about yourself, you enter the cave and take a refreshing nap, giving you full HP and Mana.\n");
+                    protag->currentHP = protag->maxHP;
+                    protag->currentMana = protag->maxMana;
+                }
+                else if(protag->physicalPower >= 15){
+                    damageTaken = (protag->maxHP * .2);
+                    protag->currentHP -= damageTaken;
+                    printf("You manage to send the boulder off course only losing %d HP in the process.\n", damageTaken);
+                    isAlive(protag);
+                }
+                else{
+                    damageTaken = (protag->maxHP * .45);
+                    protag->currentHP -= damageTaken;
+                    printf("As you are about as strong as a noodle, you are comically rolled over by the boulder, costing you %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            default:
+                printf("Say again?\n");
+            }
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 35){
+        printf("You reach the peak of the mountain, providing you with a majestic view. As you are looking down, you fail to notice monsters approaching from behind.\n How will you react?\n");
+        do{
+            printf("1. Face The Monsters    2. Slide Down The Mountain\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You turn around and prepare to fight!\n");
+                encounterMonster(protag);
+                encounterMonster(protag);
+                encounterMonster(protag);
+                break;
+            case '2':
+                printf("Without another thought, you face the side of the mountain and jump.. sliding for what seems like hours.\n");
+                if((rand() % 100) >= 80){
+                    printf("You slowly come to a stop without taking so much as a scratch!\n");
+                }
+                else if((rand() % 100) >= 40){
+                    damageTaken = (protag->maxHP * .2);
+                    protag->currentHP -= damageTaken;
+                    printf("You land after getting a little scraped up on the way costing you %d HP\n", damageTaken);
+                    isAlive(protag);
+                }
+                else{
+                    damageTaken = (protag->maxHP * .2);
+                    protag->currentHP -= damageTaken;
+                    printf("You took quite the beating from that trip and have lost %d HP\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 15){
+        printf("As you climb up the mountain, you are greeted with a heavy snowstorm. What will you do?\n");
+        do{
+            printf("1. Hide In A Cave    2. Bear The Cold\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You choose to hide in a cave until the snowstorm blows over. What will you do to pass the time?\n");
+                do{
+                    printf("1. Build A Fire    2. Huddle In The Corner\n");
+                    scanf(" %c", &insiderKeypress);
+
+                    switch(insiderKeypress){
+                    case '1':
+                        printf("You warm yourself by a fire you built, giving you a chance to rest and to refill your health and mana.\n");
+                        protag->currentHP = protag->maxHP;
+                        protag->currentMana = protag->maxMana;
+                        if ((rand() % 100) >= 60){
+                            printf("After a short time, the snowstorm peters out and you venture back out into the mountains.\n");
+                        }
+                        else{
+                            printf("After a short time, the snowstorm peters out and you venture back outside.. only to be met by monsters!\n");
+                            encounterMonster(protag);
+                            encounterMonster(protag);
+                            encounterMonster(protag);
+                        }
+                        break;
+                    case '2':
+                        printf("Not risking the attention, you stay huddled in the corner until the storm passes.\n");
+                        damageTaken = (protag->maxHP * .2);
+                        protag->currentHP -= damageTaken;
+                        printf("You lose %d HP from the chilling temperatures and continue your journey.\n", damageTaken);
+                        isAlive(protag);
+                        break;
+                    default:
+                        printf("Say again?\n");
+                    }
+
+                } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+                break;
+            case '2':
+                damageTaken = (protag->maxHP * .4);
+                protag->currentHP -= damageTaken;
+                printf("You foolishly keep moving in the freezing snowstorm losing %d HP in the process.\n", damageTaken);
+                isAlive(protag);
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
     }
     //If the number is between 33 and 65, the player advances
     else if (random >= 10){
@@ -1366,7 +1595,9 @@ void exploreMountain(charInformation *protag){
     }
     //If the number is between 0 and 32, nothing happens
     else{
-        printf("You found nothing and keep moving.\n");
+        printf("You ponder the danger of wandering around mountains.. as you trip and fall down the valley.\nFortunately, you fell into deep water that refills your health and mana. What luck!\n");
+        protag->currentHP = protag->maxHP;
+        protag->currentMana = protag->maxHP;
     }
 
 }
