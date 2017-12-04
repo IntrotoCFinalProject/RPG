@@ -71,8 +71,9 @@ void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char mons
 //checks if player is alive
 void isAlive(charInformation *protag);
 
-//gives option to allow players to use items
+//gives option to allow players to use items, both in battle and overworld
 void useItems(charInformation *protag, int monsterStats[], char monsterName[]);
+void overWorldUseItems(charInformation *protag);
 
 //this function generates random loot
 void randomLoot(charInformation *protag);
@@ -199,7 +200,7 @@ int main(){
     do {
         while(protag.area == 0){
             printf("\nYou are in a thick forest. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use items\n");
 
             scanf(" %c", &keypress);
 
@@ -218,11 +219,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 1){
@@ -246,11 +250,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 2){
@@ -274,11 +281,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 3){
@@ -302,11 +312,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 4){
@@ -330,11 +343,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 5){
@@ -358,11 +374,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 6){
@@ -386,11 +405,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 7){
@@ -414,11 +436,14 @@ int main(){
                 case '2':
                     checkStats(protag);
                     break;
+                case '3':
+                    overWorldUseItems(&protag);
+                    break;
                 default:
                     printf("Say again?\n");
             }
         }
-    } while( !( (keypress >= '1') && (keypress <= '2') ) );
+    } while( !( (keypress >= '1') && (keypress <= '3') ) );
 
     do{
         while(protag.area == 8){
@@ -2706,6 +2731,7 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
 
         switch(keypress){
             case '1':
+                //Use health potion
                 if(playerItems[0].numItems > 0){
                     hpHealed = (protag->maxHP / 2) + 1;
                     protag->currentHP += hpHealed;
@@ -2727,6 +2753,7 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 }
                 break;
             case '2':
+                //Use mana potion
                 if(playerItems[1].numItems > 0){
                     hpHealed = (protag->maxMana / 2);
                     protag->currentMana += hpHealed;
@@ -2748,6 +2775,7 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 }
                 break;
             case '3':
+                //Use magic axe
                 if(playerItems[2].numItems > 0){
                     damageDealt = monsterStats[0] / 2;
                     monsterStats[0] -= damageDealt;
@@ -2760,6 +2788,7 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 }
                 break;
             case '4':
+                //use vanishing powder
                 if(playerItems[3].numItems > 0){
                     protag->evasionChance += 25;
                     printf("Your image blurs slightly, increasing your evasion by 25!\n");
@@ -2774,6 +2803,70 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 printf("Say again?\n");
         }
     }while( !( (keypress >= '1') && (keypress <= '4') ) );
+}
+
+void overWorldUseItems(charInformation *protag){
+    int i, hpHealed, overHeal;
+    char keypress;
+
+    do{
+        //prints out items player can use
+        printf("What item will you use?\n");
+        for(i = 0; i < 2; i++){
+            printf("%d. Use %s (%d remaining)      ", (i + 1), playerItems[i].itemName, playerItems[i].numItems);
+        }
+        printf("\n");
+        scanf(" %c", &keypress);
+
+        switch(keypress){
+            case '1':
+                //Use health potion
+                if(playerItems[0].numItems > 0){
+                    hpHealed = (protag->maxHP / 2) + 1;
+                    protag->currentHP += hpHealed;
+
+                    if(protag->currentHP > protag->maxHP){
+                        overHeal = protag->currentHP - protag->maxHP;
+                        hpHealed -= overHeal;
+                        protag->currentHP = protag->maxHP;
+                        printf("You used a healing potion and healed yourself for %d HP!\n", hpHealed);
+                    }
+                    else{
+                        printf("You used a healing potion and healed yourself for %d HP!\n", hpHealed);
+                    }
+                    playerItems[0].numItems--;
+                }
+                else{
+                    printf("You have no more %s remaining!\n", playerItems[0].itemName);
+                    return;
+                }
+                break;
+            case '2':
+                //Use mana potion
+                if(playerItems[1].numItems > 0){
+                    hpHealed = (protag->maxMana / 2);
+                    protag->currentMana += hpHealed;
+
+                    if(protag->currentMana > protag->maxMana){
+                        overHeal = protag->currentMana - protag->maxMana;
+                        hpHealed -= overHeal;
+                        protag->currentMana = protag->maxMana;
+                        printf("You used a Mana potion and restored %d Mana!\n", hpHealed);
+                    }
+                    else{
+                        printf("You used a Mana potion and restored %d Mana!\n", hpHealed);
+                    }
+                    playerItems[1].numItems--;
+                }
+                else{
+                    printf("You have no more %s remaining!\n", playerItems[3].itemName);
+                    return;
+                }
+                break;
+            default:
+                printf("Say again?\n");
+        }
+    }while( !( (keypress >= '1') && (keypress <= '2') ) );
 }
 
 void randomLoot(charInformation *protag){
