@@ -2706,13 +2706,22 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 break;
             case '2':
                 if(playerItems[1].numItems > 0){
-                    damageDealt = monsterStats[0] / 2;
-                    monsterStats[0] -= damageDealt;
-                    printf("The %s homes in on the %s for %d damage!\n", playerItems[1].itemName, monsterName, damageDealt);
+                    hpHealed = (protag->maxMana / 2);
+                    protag->currentMana += hpHealed;
+
+                    if(protag->currentMana > protag->maxMana){
+                        overHeal = protag->currentMana - protag->maxMana;
+                        hpHealed -= overHeal;
+                        protag->currentMana = protag->maxMana;
+                        printf("You used a Mana potion and restored %d Mana!\n", hpHealed);
+                    }
+                    else{
+                        printf("You used a Mana potion and restored %d Mana!\n", hpHealed);
+                    }
                     playerItems[1].numItems--;
                 }
                 else{
-                    printf("You have no more %s remaining!\n", playerItems[1].itemName);
+                    printf("You have no more %s remaining!\n", playerItems[3].itemName);
                     return;
                 }
                 break;
@@ -2729,18 +2738,9 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 break;
             case '4':
                 if(playerItems[3].numItems > 0){
-                    hpHealed = (protag->maxMana / 2);
-                    protag->currentMana += hpHealed;
-
-                    if(protag->currentMana > protag->maxMana){
-                        overHeal = protag->currentMana - protag->maxMana;
-                        hpHealed -= overHeal;
-                        protag->currentMana = protag->maxMana;
-                        printf("You used a Mana potion and restored %d Mana!\n", hpHealed);
-                    }
-                    else{
-                        printf("You used a Mana potion and restored %d Mana!\n", hpHealed);
-                    }
+                    damageDealt = monsterStats[0] / 2;
+                    monsterStats[0] -= damageDealt;
+                    printf("The %s homes in on the %s for %d damage!\n", playerItems[3].itemName, monsterName, damageDealt);
                     playerItems[3].numItems--;
                 }
                 else{
