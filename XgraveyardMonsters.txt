@@ -1,0 +1,5 @@
+gGhost.txt
+gSkeleton.txt
+gSpider.txt
+gVampire.txt
+gZombie.txt

@@ -1,0 +1,5 @@
+dBeetle.txt
+dMummy.txt
+dPheonix.txt
+dScorpion.txt
+dSphinx.txt

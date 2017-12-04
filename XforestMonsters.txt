@@ -1,0 +1,5 @@
+fGoblin.txt
+fSlime.txt
+fImp.txt
+fFairy.txt
+fBoar.txt

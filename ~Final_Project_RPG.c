@@ -12,7 +12,6 @@
 #define  MAX_NUM_PROTAG_STATS_FROM_FILE 5
 #define  MAX_PLAYER_ITEMS 4
 
-#define  USED_MANA_FOR_HEAL 3
 
 typedef struct{
     char name[30];          //This will save the user's declared name
@@ -665,7 +664,7 @@ void exploreForest(charInformation *protag){
 
             switch(insideKeypress){
             case '1':
-                if(mushroom == 0){
+                if((rand() % 100 >= 50)){
                     printf("You eat the odd mushroom and suddenly.. You feel more powerful than ever!\n");
                     protag->maxHP++;
                     protag->currentHP++;
@@ -674,12 +673,10 @@ void exploreForest(charInformation *protag){
                     protag->speed++;
                     protag->physicalPower++;
                     protag->magicalPower++;
-                    protag->currentExperience += 20;
-                    printf("You have gained +1 to every stat, but you won't always be so lucky...\n");
-                    mushroom++;
+                    printf("You have gained +1 to every stat, but you won't always be so lucky..\n");
                 }
                 else{
-                    printf("You eat the odd mushroom and suddenly.. You feel extremely nauseous and nothing happened.\n");
+                    printf("You eat the odd mushroom and suddenly.. You feel extremely nauseous but nothing happened.\n");
                 }
                 break;
             case '2':
@@ -995,7 +992,7 @@ void exploreTown(charInformation *protag){
     else if (random >= 40){
         printf("You find two fruits lying on the ground. Which one do you eat?\n");
         do{
-            printf("1. The Red Fruit    2. The Blue Fruit\n");
+            printf("1. The Red Fruit    2. The Blue Fruit    3. Neither\n");
             scanf(" %c", &insideKeypress);
 
             switch(insideKeypress){
@@ -1021,11 +1018,14 @@ void exploreTown(charInformation *protag){
                     protag->magicalPower = protag->magicalPower - 2;
                 }
                 break;
+            case '3':
+                printf("You decide not to risk eating a random fruit off of the ground and keep moving.\n");
+                break;
             default:
                 printf("Say again?\n");
             }
 
-        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '3') ) );
     }
     else if (random >= 15){
         printf("You see that one of the doors to a house is slightly ajar. What will you do?\n");
@@ -2289,8 +2289,33 @@ void encounterMonster(charInformation *protag){
     char insideKeypress;
 
     //This opens up a text document that contains the names of the text files of all possible monsters in a given area
-    monsterFile = fopen("possibleMonstersInForest.txt", "r");
-
+    if(protag->area == 0){
+        monsterFile = fopen("XforestMonsters.txt", "r");
+    }
+    else if(protag->area == 1){
+        monsterFile = fopen("XcaveMonsters.txt", "r");
+    }
+    else if(protag->area == 2){
+        monsterFile = fopen("XtownMonsters.txt", "r");
+    }
+    else if(protag->area == 3){
+        monsterFile = fopen("XgraveyardMonsters.txt", "r");
+    }
+    else if(protag->area == 4){
+        monsterFile = fopen("XmountainMonsters.txt", "r");
+    }
+    else if(protag->area == 5){
+        monsterFile = fopen("XmarshMonsters.txt", "r");
+    }
+    else if(protag->area == 6){
+        monsterFile = fopen("XdesertMonsters.txt", "r");
+    }
+    else if(protag->area == 7){
+        monsterFile = fopen("XvolcanoMonsters.txt", "r");
+    }
+    else if(protag->area == 8){
+        monsterFile = fopen("XbossMonsters.txt", "r");
+    }
     //This runs a loop that records the name of each text files inside of the array
     for(i = 0; i < MAX_MONSTERS_IN_AREA; i++){
         fscanf(monsterFile, "%s", possibleMonsters[i]);
@@ -2348,7 +2373,7 @@ void encounterMonster(charInformation *protag){
 
 void battleEncounter(charInformation *protag, int monsterStats[], char monsterName[]){
     char insideKeypress;
-    int  damageBuff = 0, overHP, healedHP, gainedMana, randMod = 0;
+    int  damageBuff = 0, overHP, healedHP, gainedMana, usedMana, randMod = 0;
 
     do{
         printf("You are fighting a %s, which has %d HP.\n", monsterName, monsterStats[0]);
@@ -2418,8 +2443,8 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                     }
                     break;
                 case('4'):
-                    if( protag->currentMana >= USED_MANA_FOR_HEAL ){
-                        protag->currentMana -= USED_MANA_FOR_HEAL;
+                    if( protag->currentMana >= (protag->currentMana * .2)){
+                        protag->currentMana -= (protag->currentMana * .2);
 
                         //50-50 chance to to either heal/damage a little more or a little less than average
                         if( protag->level < 1){
@@ -2450,6 +2475,8 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                             //healedHP tracks the amount of health healed to inform the player
                             healedHP = (protag->maxHP * .5) + randMod + 1;
                             protag->currentHP += (protag->maxHP * .5) + randMod + 1;
+                            //This tracks how much mana is used
+                            usedMana = (protag->currentMana * .2);
 
                             //If the heal goes over their max, their currentHP is set to maxHP and that difference is subtracted from healedHP
                             if(protag->currentHP > protag->maxHP){
@@ -2458,39 +2485,45 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                                 healedHP -= overHP;
                             }
                             //Here the player learns how much health they gained
-                            printf("For the cost of %d Mana, you heal for %d HP!\n", USED_MANA_FOR_HEAL, healedHP);
+                            printf("For the cost of %d Mana, you heal for %d HP!\n", usedMana, healedHP);
                         }
                         else if( strcmp(protag->job, "berserker") == 0 ){
                             //The berserker cannot heal, but can gain a temporary damage buff that lasts until the end of the fight
                             damageBuff = protag->physicalPower + randMod + 1;
                             protag->physicalPower = (protag->physicalPower * 1.5) + .5 + randMod + 1;
                             damageBuff -= protag->physicalPower;
+                            //This tracks how much mana is used
+                            usedMana = (protag->currentMana * .2);
 
-                            printf("For the cost of %d Mana, you now do %d damage with a %d damage buff!\n\n", USED_MANA_FOR_HEAL, protag->physicalPower, abs(damageBuff));
+                            printf("For the cost of %d Mana, you now do %d damage with a %d damage buff!\n\n", usedMana, protag->physicalPower, abs(damageBuff));
                         }
                         else if( strcmp(protag->job, "mage") == 0 ){
                             //This process is the same as the paladin's heal, just slightly weaker
                             healedHP = protag->maxHP * .33 + randMod + 1;
                             protag->currentHP += (protag->maxHP * .33) + randMod + 1;
+                            //This tracks how much mana is used
+                            usedMana = (protag->currentMana * .2);
 
                             if(protag->currentHP > protag->maxHP){
                                 overHP = protag->currentHP - protag->maxHP;
                                 protag->currentHP = protag->maxHP;
                                 healedHP -= overHP;
                             }
-                            printf("For the cost of %d Mana, you heal for %d HP!\n", USED_MANA_FOR_HEAL, healedHP);
+                            printf("For the cost of %d Mana, you heal for %d HP!\n", usedMana, healedHP);
                         }
                         else if( strcmp(protag->job, "cleric") == 0 ){
                             //This process is the same as the paladin's heal, just slightly stronger
                             healedHP = protag->maxHP * .66 + randMod + 1;
                             protag->currentHP += (protag->maxHP * .66) + randMod + 1;
+                            //This tracks how much mana is used
+                            usedMana = (protag->currentMana * .2);
 
                             if(protag->currentHP > protag->maxHP){
                                 overHP = protag->currentHP - protag->maxHP;
                                 protag->currentHP = protag->maxHP;
                                 healedHP -= overHP;
                             }
-                            printf("For the cost of %d Mana, you heal for %d HP!\n", USED_MANA_FOR_HEAL, healedHP);
+                            printf("For the cost of %d Mana, you heal for %d HP!\n", usedMana, healedHP);
                         }
                         monsterAttacksPlayer(protag, monsterStats, monsterName);
                         printf("\n");

@@ -1,0 +1,5 @@
+cBasilisk.txt
+cBat.txt
+cMinotaur.txt
+cRockMonster.txt
+cTroll.txt

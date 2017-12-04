@@ -1,0 +1,5 @@
+vDemon.txt
+vDragon.txt
+vGolem.txt
+vNecromancer.txt
+vSalamander.txt

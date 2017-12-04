@@ -1,5 +1,0 @@
-fGoblinStats.txt
-fSlimeStats.txt
-fImpStats.txt
-fEvilFairyStats.txt
-fBoarStats.txt

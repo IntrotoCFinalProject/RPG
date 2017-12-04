@@ -1,0 +1,5 @@
+maCrocodile.txt
+maCyclops.txt
+maHydra.txt
+maManticore.txt
+maWitch.txt
