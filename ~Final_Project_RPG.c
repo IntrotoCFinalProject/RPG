@@ -74,6 +74,9 @@ void isAlive(charInformation *protag);
 //gives option to allow players to use items
 void useItems(charInformation *protag, int monsterStats[], char monsterName[]);
 
+//this function generates random loot
+void randomLoot(charInformation *protag);
+
 //Character information struct is used to set the base attributes
 //and information of various entities.
 //NOTE: all variables for characterInformation may not be used for a given variable.
@@ -106,7 +109,7 @@ int main(){
     //Here we set up the randomizer for later in the program
     srand(time(0));
 
-    printf("You find yourself in a thick forest, unsure of where you are. You can't seem to recall anything... besides who you are.\n");
+    printf("You find yourself in a thick forest, unsure of where you are. You can't seem to recall anything... besides who you are.\n\n");
     printf("What is your name?\n");
     scanf("%s", protag.name);
 
@@ -513,7 +516,7 @@ void exploreForest(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
 
     else if (random >= 65){
@@ -700,7 +703,7 @@ void exploreCave(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
 
     else if (random >= 65){
@@ -932,7 +935,7 @@ void exploreTown(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
 
     else if (random >= 60){
@@ -1157,7 +1160,7 @@ void exploreGraveyard(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
 
     else if (random >= 65){
@@ -1365,7 +1368,7 @@ void exploreMountain(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
 
     else if (random >= 65){
@@ -1657,7 +1660,7 @@ void exploreMarsh(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
     //If the number is between 33 and 65, the player advances
     else if (random >= 65){
@@ -1869,7 +1872,7 @@ void exploreDesert(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
 
     else if (random >= 60){
@@ -2049,7 +2052,7 @@ void exploreVolcano(charInformation *protag){
 
     //If the number rolls 66 or above, the player finds loot
     if (random >= 80){
-        printf("You found some loot!\n");
+        randomLoot(protag);
     }
 
     else if (random >= 60){
@@ -2374,6 +2377,7 @@ void encounterMonster(charInformation *protag){
 void battleEncounter(charInformation *protag, int monsterStats[], char monsterName[]){
     char insideKeypress;
     int  damageBuff = 0, overHP, healedHP, gainedMana, usedMana, randMod = 0;
+    int randPossibleItem = rand() % MAX_PLAYER_ITEMS;
 
     do{
         printf("You are fighting a %s, which has %d HP.\n", monsterName, monsterStats[0]);
@@ -2422,12 +2426,20 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                 case('2'):
 
                     gainedMana = (protag->maxHP * .25) + randMod + 1;
-                    protag->currentMana += (protag->maxHP * .25) + randMod + 1;
+                    protag->currentMana += gainedMana;
+
+                    //if player "overheals" with mana, sets it back to the max
+                    if( protag->currentMana > protag->maxMana ){
+                        gainedMana -= (protag->currentMana - protag->maxMana);
+                        protag->currentMana = protag->maxMana;
+                    }
+
                     printf("You attempt to dodge against the monster's attack and regain %d Mana in the process!\n", gainedMana);
 
                     //Player attempts to defend against the enemy, reducing the probability to be hit
                     protag->evasionChance += 50;
                     monsterAttacksPlayer(protag, monsterStats, monsterName);
+                    printf("\n");
                     protag->evasionChance -= 50;
                     break;
                 case('3'):
@@ -2437,7 +2449,7 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                         return;
                     }
                     else{
-                        printf("You can't get away!\n\n");
+                        printf("You can't get away!\n");
                         monsterAttacksPlayer(protag, monsterStats, monsterName);
                         printf("\n");
                     }
@@ -2534,6 +2546,8 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                     break;
                 case('5'):
                     useItems(protag, monsterStats, monsterName);
+                    monsterAttacksPlayer(protag, monsterStats, monsterName);
+                    printf("\n");
                     break;
                 default: printf("Say again?\n");;
             }
@@ -2551,7 +2565,15 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
         protag->physicalPower += damageBuff;
 
         //Rewards player with appropriate amount of EXP and gold, then checks if there was a level up
-        printf("The %s had %d gold on it, which you quickly pocket. You gain %d experience from the battle!\n", monsterName, monsterStats[4], monsterStats[3]);
+        printf("The %s had %d gold on it, which you quickly pocket. ", monsterName, monsterStats[4]);
+
+         //there is a 10% chance for players to also find 1 random item
+        if( (rand() % 10) == 0 ){
+            playerItems[randPossibleItem].numItems++;
+            printf("You also found a %s! ", playerItems[randPossibleItem].itemName);
+        }
+
+        printf("You gain %d experience from the battle!\n", monsterStats[3]);
         protag->currentExperience += monsterStats[3];
         protag->gold += monsterStats[4];
 
@@ -2727,24 +2749,24 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 break;
             case '3':
                 if(playerItems[2].numItems > 0){
-                    protag->evasionChance += 25;
-                    printf("Your image blurs slightly, increasing your evasion by 25!\n");
+                    damageDealt = monsterStats[0] / 2;
+                    monsterStats[0] -= damageDealt;
+                    printf("The %s homes in on the %s for %d damage!\n", playerItems[2].itemName, monsterName, damageDealt);
                     playerItems[2].numItems--;
                 }
                 else{
-                    printf("You have no more %s remaining!\n", playerItems[2].itemName);
+                    printf("You have no more %s remaining!\n", playerItems[3].itemName);
                     return;
                 }
                 break;
             case '4':
                 if(playerItems[3].numItems > 0){
-                    damageDealt = monsterStats[0] / 2;
-                    monsterStats[0] -= damageDealt;
-                    printf("The %s homes in on the %s for %d damage!\n", playerItems[3].itemName, monsterName, damageDealt);
+                    protag->evasionChance += 25;
+                    printf("Your image blurs slightly, increasing your evasion by 25!\n");
                     playerItems[3].numItems--;
                 }
                 else{
-                    printf("You have no more %s remaining!\n", playerItems[3].itemName);
+                    printf("You have no more %s remaining!\n", playerItems[2].itemName);
                     return;
                 }
                 break;
@@ -2752,8 +2774,17 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                 printf("Say again?\n");
         }
     }while( !( (keypress >= '1') && (keypress <= '4') ) );
+}
 
-    //after player uses item, monster attacks
-    monsterAttacksPlayer(protag, monsterStats, monsterName);
-    printf("\n");
+void randomLoot(charInformation *protag){
+    int placeHolder1, placeHolder2;
+
+    placeHolder1 = rand() % MAX_PLAYER_ITEMS;
+    placeHolder2 = (rand() % 2) + 1;
+    playerItems[placeHolder1].numItems += placeHolder2;
+    printf("You found some loot! You pocket a %d %s and ", placeHolder2, playerItems[placeHolder1].itemName);
+
+    placeHolder1 = (rand() % 20) + 5;
+    protag->gold += placeHolder1;
+    printf("%d gold!\n", placeHolder1);
 }
