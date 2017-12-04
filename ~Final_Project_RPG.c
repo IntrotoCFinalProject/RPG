@@ -2571,8 +2571,6 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                     break;
                 case('5'):
                     useItems(protag, monsterStats, monsterName);
-                    monsterAttacksPlayer(protag, monsterStats, monsterName);
-                    printf("\n");
                     break;
                 default: printf("Say again?\n");;
             }
@@ -2726,7 +2724,7 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
         for(i = 0; i < MAX_PLAYER_ITEMS; i++){
             printf("%d. Use %s (%d remaining)      ", (i + 1), playerItems[i].itemName, playerItems[i].numItems);
         }
-        printf("\n");
+        printf("%d. Go back\n", (i + 1));
         scanf(" %c", &keypress);
 
         switch(keypress){
@@ -2799,10 +2797,18 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                     return;
                 }
                 break;
+            case '5':
+                //Go back to last menu
+                printf("\n");
+                return;
+                break;
             default:
                 printf("Say again?\n");
         }
-    }while( !( (keypress >= '1') && (keypress <= '4') ) );
+    }while( !( (keypress >= '1') && (keypress <= '5') ) );
+
+    monsterAttacksPlayer(protag, monsterStats, monsterName);
+    printf("\n");
 }
 
 void overWorldUseItems(charInformation *protag){
@@ -2815,7 +2821,7 @@ void overWorldUseItems(charInformation *protag){
         for(i = 0; i < 2; i++){
             printf("%d. Use %s (%d remaining)      ", (i + 1), playerItems[i].itemName, playerItems[i].numItems);
         }
-        printf("\n");
+        printf("%d. Go back\n", (i + 1));
         scanf(" %c", &keypress);
 
         switch(keypress){
@@ -2863,10 +2869,15 @@ void overWorldUseItems(charInformation *protag){
                     return;
                 }
                 break;
+            case '3':
+                //Go back to last menu
+                printf("\n");
+                return;
+                break;
             default:
                 printf("Say again?\n");
         }
-    }while( !( (keypress >= '1') && (keypress <= '2') ) );
+    }while( !( (keypress >= '1') && (keypress <= '3') ) );
 }
 
 void randomLoot(charInformation *protag){
