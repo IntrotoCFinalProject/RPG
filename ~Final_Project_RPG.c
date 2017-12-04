@@ -10,7 +10,7 @@
 #define  MAX_MONSTERS_IN_AREA 5
 #define  MAX_NUM_MONSTER_STATS 5
 #define  MAX_NUM_PROTAG_STATS_FROM_FILE 5
-#define  MAX_PLAYER_ITEMS 3
+#define  MAX_PLAYER_ITEMS 4
 
 #define  USED_MANA_FOR_HEAL 3
 
@@ -2330,10 +2330,31 @@ void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
                     return;
                 }
                 break;
+            case '4':
+                if(playerItems[3].numItems > 0){
+                    hpHealed = (protag->maxMana / 2);
+                    protag->currentMana += hpHealed;
+
+                    if(protag->currentMana > protag->maxMana){
+                        overHeal = protag->currentMana - protag->maxMana;
+                        hpHealed -= overHeal;
+                        protag->currentMana = protag->maxMana;
+                        printf("You used a mana potion and restored %d mana!\n", hpHealed);
+                    }
+                    else{
+                        printf("You used a mana potion and restored %d mana!\n", hpHealed);
+                    }
+                    playerItems[3].numItems--;
+                }
+                else{
+                    printf("You have no more %s remaining!\n", playerItems[3].itemName);
+                    return;
+                }
+                break;
             default:
                 printf("Say again?\n");
         }
-    }while( !( (keypress >= '1') && (keypress <= '3') ) );
+    }while( !( (keypress >= '1') && (keypress <= '4') ) );
 
     //after player uses item, monster attacks
     monsterAttacksPlayer(protag, monsterStats, monsterName);
