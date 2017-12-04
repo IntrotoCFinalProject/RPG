@@ -1603,17 +1603,190 @@ void exploreMountain(charInformation *protag){
 }
 
 void exploreMarsh(charInformation *protag){
-    int random;
-    char insideKeypress;
+    int random, damageTaken;
+    char insideKeypress, insiderKeypress;
 
     //We use a random number to determine the outcome of each exploration
     random = (rand() % 100);
 
     //If the number rolls 66 or above, the player finds loot
-    if (random >= 66){
+    if (random >= 80){
         printf("You found some loot!\n");
     }
     //If the number is between 33 and 65, the player advances
+    else if (random >= 65){
+        printf("You are walking through the marsh and notice a snare under your feet, almost a second too late. How will you react?\n");
+        do{
+            printf("1. Run Away    2. Jump Away\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                if (protag->speed > 22){
+                    printf("Your speed enables you to hightail it out of the trap, just in the nick of time!\n");
+                }
+                else if (protag->physicalPower >= 17){
+                    damageTaken = (protag->maxHP * .2);
+                    protag->currentHP -= damageTaken;
+                    printf("You begin to fall into the pit that has opened up, just barely grabbing the edge caused %d HP to be lost.\n", damageTaken);
+                    isAlive(protag);
+                }
+                else {
+                    damageTaken = (protag->maxHP * .35);
+                    protag->currentHP -= damageTaken;
+                    printf("You fall into the trap losing %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            case '2':
+                if (protag->physicalPower > 22){
+                    printf("You summon all of your power into your legs and escape the trap!\n");
+                }
+                else if (protag->physicalPower >= 17){
+                    damageTaken = (protag->maxHP * .2);
+                    protag->currentHP -= damageTaken;
+                    printf("You are just able to jump to the side of the pit, slamming your legs into the wall causing you to lose %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                else {
+                    damageTaken = (protag->maxHP * .35);
+                    protag->currentHP -= damageTaken;
+                    printf("You are lacking in physical power and lose %d HP.\n", damageTaken);
+                    isAlive(protag);
+                }
+                break;
+            default:
+                printf("Say again?\n");
+            }
+
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 50){
+        printf("You see smoke in the distance. What will you do?\n");
+        do{
+            printf("1. Move Towards The Smoke    2. Walk The Opposite Direction\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+                case '1':
+                    printf("You approach the smoke and find monsters sitting around a fire, cooking up a meal. What do you do?\n");
+                    do{
+                        printf("1. Sneak Up On The Monsters    2. Charge At The Monsters\n");
+                        scanf(" %c", &insideKeypress);
+
+                        switch(insideKeypress){
+                        case '1':
+                            if (protag->speed >= 17){
+                                printf("You silently take out the monsters in quick succession, earning 75 XP and allowing you to eat their meal and regain full health and mana.");
+                                protag->currentExperience = protag->currentExperience + 75;
+                                protag->currentHP = protag->maxHP;
+                                protag->currentMana = protag->maxMana;
+                            }
+                            else{
+                                printf("You stumble and the monsters grab their food and ready their attack.\n");
+                                encounterMonster(protag);
+                                encounterMonster(protag);
+                                encounterMonster(protag);
+                                encounterMonster(protag);
+                            }
+                            break;
+                        case '2':
+                            if (protag->speed >= 18){
+                                printf("You charge the monsters scaring most of the monsters awayand regain full health and mana.\n");
+                                encounterMonster(protag);
+                                encounterMonster(protag);
+                                printf("With the stragglers taken care of, you eat the meal and regain full health and mana.\n");
+                                protag->currentHP = protag->maxHP;
+                                protag->currentMana = protag->maxMana;
+                            }
+                            else{
+                                printf("The monster munch on their meal and charge at you.\n");
+                                encounterMonster(protag);
+                                encounterMonster(protag);
+                                encounterMonster(protag);
+                            }
+                            break;
+                        default:
+                            printf("Say again?\n");
+                            break;
+                        }
+                    } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+            case '2':
+                printf("You turn around and move forward in blissful ignorance.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
+    else if (random >= 30){
+        printf("While walking through the marsh, you notice you are surrounded by brush on all sides.. and get ambushed!\n");
+        if (protag->level < 6){
+            encounterMonster(protag);
+            encounterMonster(protag);
+            encounterMonster(protag);
+        }
+        else{
+            encounterMonster(protag);
+            encounterMonster(protag);
+            encounterMonster(protag);
+            encounterMonster(protag);
+        }
+    }
+
+    else if (random >= 10){
+        printf("You notice a small shack in the middle of the woods. What will you do?\n");
+        do{
+            printf("1. Approach The Shack    2. Pass It By\n");
+            scanf(" %c", &insideKeypress);
+
+            switch(insideKeypress){
+            case '1':
+                printf("You approach the shack and notice the faint smell of rot. Do you continue moving forward?\n");
+                do{
+                    printf("1. Continue Towards The Shack    2. Turn Back\n");
+                    scanf(" %c", &insiderKeypress);
+
+                    switch(insiderKeypress){
+                    case '1':
+                        printf("You enter the shack to find ");
+                        if ((rand() % 100) >= 66){
+                            printf("a dead rat, rotting in an empty room. You leave grossed out and disappointed.\n");
+                        }
+                        else if ((rand() % 100) >= 33){
+                            printf("a foul smelling potion which refills your health and mana!\n");
+                            protag->currentHP = protag->maxHP;
+                            protag->currentMana = protag->maxMana;
+                        }
+                        else{
+                            printf("a collective of monsters, all ready and waiting to pounce!\n");
+                            encounterMonster(protag);
+                            encounterMonster(protag);
+                            encounterMonster(protag);
+                            encounterMonster(protag);
+                        }
+                        break;
+                    case '2':
+                        printf("You decide against continuing further, only to be ambushed by monsters!\n");
+                        encounterMonster(protag);
+                        encounterMonster(protag);
+                        break;
+                    default:
+                        printf("Say again?\n");
+                    }
+                } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+                break;
+            case '2':
+                printf("You are not ready to discover your fate and return to the marsh.\n");
+                break;
+            default:
+                printf("Say again?\n");
+            }
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '2') ) );
+    }
+
     else if (random >= 5){
         printf("As you travel the marsh, you find scorched earth beneath your feet. You look forward and see a looming volcano.\nYou sense this is what you have been preparing for. What will you do?\n");
         do{
@@ -1636,7 +1809,7 @@ void exploreMarsh(charInformation *protag){
     }
     //If the number is between 0 and 32, nothing happens
     else{
-        printf("You found nothing and keep moving.\n");
+        printf("You find a strange wooden outhouse near the edge of the marsh. How odd.\n");
     }
 
 }
