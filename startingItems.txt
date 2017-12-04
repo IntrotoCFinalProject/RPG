@@ -1,0 +1,3 @@
+Healing_Potion 3
+Magic_Axe 3
+Vanishing_Powder 3

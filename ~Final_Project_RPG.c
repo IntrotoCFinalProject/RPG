@@ -10,6 +10,7 @@
 #define  MAX_MONSTERS_IN_AREA 5
 #define  MAX_NUM_MONSTER_STATS 5
 #define  MAX_NUM_PROTAG_STATS_FROM_FILE 5
+#define  MAX_PLAYER_ITEMS 3
 
 #define  USED_MANA_FOR_HEAL 3
 
@@ -33,6 +34,15 @@ typedef struct{
     int  currentMana;       //This stat tracks the player's current mana which changes after using magic
     int  area;              //The area stat will track which explore function should be used
 } charInformation;
+
+typedef struct{
+    char itemName[50];
+    int numItems;
+} itemType;
+
+//global variables
+//player's list of items
+itemType playerItems[MAX_PLAYER_ITEMS];
 
 //This function will be used to increase the stats of the player each time they gain a level
 void protagLevelUp(charInformation *protag);
@@ -60,7 +70,11 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
 void playerAttacksMonster(charInformation *protag, int monsterStats[], char monsterName[]);
 void monsterAttacksPlayer(charInformation *protag, int monsterStats[], char monsterName[]);
 
+//checks if player is alive
 void isAlive(charInformation *protag);
+
+//gives option to allow players to use items
+void useItems(charInformation *protag, int monsterStats[], char monsterName[]);
 
 //Character information struct is used to set the base attributes
 //and information of various entities.
@@ -72,6 +86,24 @@ int main(){
     protag.level = 0; protag.currentExperience = 0; protag.neededExperience = 0; protag.area = 0; protag.physicalPower = 0; protag.magicalPower = 0;
     protag.evasionChance = 10;
     char keypress;
+    int i, j;
+    FILE *itemFile;
+
+    //Initialize player's item list, then assign starting items
+    itemFile = fopen("startingItems.txt", "r");
+    for(i = 0; i < MAX_PLAYER_ITEMS; i++){
+        fscanf(itemFile, "%s %d", playerItems[i].itemName, &playerItems[i].numItems);
+
+        //replace _ with spaces
+        j = 0;
+        while(playerItems[i].itemName[j] != '\0'){
+            if(playerItems[i].itemName[j] == '_'){
+                playerItems[i].itemName[j] = ' ';
+            }
+            j++;
+        }
+    }
+    fclose(itemFile);
 
     //Here we set up the randomizer for later in the program
     srand(time(0));
@@ -395,6 +427,8 @@ int main(){
 }
 
 void checkStats(charInformation stats){
+    int i;
+
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("You are a %s %s named %s, and you are a %s.\n", stats.gender, stats.race, stats.name, stats.job);
     printf("Your current stats are:\n");
@@ -403,7 +437,13 @@ void checkStats(charInformation stats){
     printf(" %17d Physical Power\n", stats.physicalPower);
     printf(" %17d Magical Power\n", stats.magicalPower);
     printf(" %17d Speed\n", stats.speed);
-    printf("You are currently level %d, %d out of %d experience from leveling up.\n", stats.level, stats.currentExperience, stats.neededExperience);
+    printf("You are currently level %d, %d out of %d experience from leveling up.\n\n", stats.level, stats.currentExperience, stats.neededExperience);
+    printf("You have the following items:\n");
+
+    for(i = 0; i < MAX_PLAYER_ITEMS; i++){
+        printf("%d %s\n", playerItems[i].numItems, playerItems[i].itemName);
+    }
+
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 }
 
@@ -1961,17 +2001,21 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
             printf("1. Attack    2. Dodge    3. Run    ");
 
             //Any further actions are locked to specific jobs
-            if( strcmp(protag->job, "paladin") == 0 )
-                printf("4. Moderate Heal\n");
-            else if( strcmp(protag->job, "berserker") == 0 )
-                printf("4. Damage Buff\n");
-            else if( strcmp(protag->job, "mage") == 0 )
-                printf("4. Minor Heal\n");
-            else if( strcmp(protag->job, "cleric") == 0 )
-                printf("4. Major Heal\n");
+            if( strcmp(protag->job, "paladin") == 0 ){
+                printf("4. Moderate Heal    ");
+            }
+            else if( strcmp(protag->job, "berserker") == 0 ){
+                printf("4. Damage Buff    ");
+            }
+            else if( strcmp(protag->job, "mage") == 0 ){
+                printf("4. Minor Heal    ");
+            }
+            else if( strcmp(protag->job, "cleric") == 0 ){
+                printf("4. Major Heal    ");
+            }
+            printf("5. Items\n");
 
             scanf(" %c", &insideKeypress);
-            printf("\n");
 
             switch(insideKeypress){
                 case('1'):
@@ -1993,9 +2037,9 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                     printf("You attempt to dodge against the monster's attack!\n");
 
                     //Player attempts to defend against the enemy, reducing the probability to be hit
-                    protag->evasionChance = 40;
+                    protag->evasionChance += 30;
                     monsterAttacksPlayer(protag, monsterStats, monsterName);
-                    protag->evasionChance = 10;
+                    protag->evasionChance -= 30;
                     break;
                 case('3'):
                     //50 percent chance to flee the battle, if it fails the monster still atacks
@@ -2006,6 +2050,7 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                     else{
                         printf("You can't get away!\n\n");
                         monsterAttacksPlayer(protag, monsterStats, monsterName);
+                        printf("\n");
                     }
                     break;
                 case('4'):
@@ -2084,36 +2129,22 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                             printf("For the cost of %d Mana, you heal for %d HP!\n", USED_MANA_FOR_HEAL, healedHP);
                         }
                         monsterAttacksPlayer(protag, monsterStats, monsterName);
+                        printf("\n");
                     }
                     else{
                         printf("You do not have enough Mana to do that.\n");
                     }
                     break;
+                case('5'):
+                    useItems(protag, monsterStats, monsterName);
+                    break;
                 default: printf("Say again?\n");;
             }
-        } while( !( (insideKeypress >= '1') && (insideKeypress <= '4') ) );
+        } while( !( (insideKeypress >= '1') && (insideKeypress <= '5') ) );
     } while( (protag->currentHP > 0) && (monsterStats[0] > 0) );
 
-    /*while(monster == ALIVE && player == ALIVE)
-    {
-        printf("You approach the monster, andprotagLevelUp(protag); as a %s choose to:\n\n", protag->job);
-        if( strcmp(protag->job, "paladin") == 0 )
-        {
-            printf("1. Swing Your Longsword    2. Shield    3. Magical Spark    4. Moderate Heal\n");
-        }
-        else if( strcmp(protag->job, "berserker") == 0 )
-        {
-            printf("1. Swing Your Axes    2. Block    3. Conjure Throwing Knives    4. Damage Buff\n");
-        }
-        else if( strcmp(protag->job, "mage") == 0 )
-        {
-            printf("1. Swing Your Dagger    2. Summon A Shield    3. Summon Elemental Shards    4. Minor Heal\n");
-        }
-        else if( strcmp(protag->job, "cleric") == 0 )
-        {
-            printf("1. Swing Your Staff   2. Conjure A Barrier    3. Fire Magic Missiles    4. Major Heal\n");
-        }
-    }*/
+    //resets evasion chance, in case it was changed by item or ability
+    protag->evasionChance = 10;
 
     if( monsterStats[0] <= 0 )
     {
@@ -2239,4 +2270,72 @@ void isAlive(charInformation *protag){
         printf("You have been slain.\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GAME OVER~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
         exit(0);
     }
+}
+
+void useItems(charInformation *protag, int monsterStats[], char monsterName[]){
+    int i, hpHealed, overHeal, damageDealt;
+    char keypress;
+
+    do{
+        //prints out items player can use
+        printf("What item will you use?\n");
+        for(i = 0; i < MAX_PLAYER_ITEMS; i++){
+            printf("%d. Use %s (%d remaining)    ", (i + 1), playerItems[i].itemName, playerItems[i].numItems);
+        }
+        printf("\n");
+        scanf(" %c", &keypress);
+
+        switch(keypress){
+            case '1':
+                if(playerItems[0].numItems > 0){
+                    hpHealed = (protag->maxHP / 2);
+                    protag->currentHP += hpHealed;
+
+                    if(protag->currentHP > protag->maxHP){
+                        overHeal = protag->currentHP - protag->maxHP;
+                        hpHealed -= overHeal;
+                        protag->currentHP = protag->maxHP;
+                        printf("You used a healing potion and healed yourself for %d HP!\n", hpHealed);
+                    }
+                    else{
+                        printf("You used a healing potion and healed yourself for %d HP!\n", hpHealed);
+                    }
+                    playerItems[0].numItems--;
+                }
+                else{
+                    printf("You have no more %s remaining!\n", playerItems[0].itemName);
+                    return;
+                }
+                break;
+            case '2':
+                if(playerItems[1].numItems > 0){
+                    damageDealt = monsterStats[0] / 2;
+                    monsterStats[0] -= damageDealt;
+                    printf("The %s homes in on the %s for %d damage!\n", playerItems[1].itemName, monsterName, damageDealt);
+                    playerItems[1].numItems--;
+                }
+                else{
+                    printf("You have no more %s remaining!\n", playerItems[1].itemName);
+                    return;
+                }
+                break;
+            case '3':
+                if(playerItems[2].numItems > 0){
+                    protag->evasionChance += 20;
+                    printf("Your image blurs slightly, increasing your evasion by 20!\n");
+                    playerItems[2].numItems--;
+                }
+                else{
+                    printf("You have no more %s remaining!\n", playerItems[2].itemName);
+                    return;
+                }
+                break;
+            default:
+                printf("Say again?\n");
+        }
+    }while( !( (keypress >= '1') && (keypress <= '3') ) );
+
+    //after player uses item, monster attacks
+    monsterAttacksPlayer(protag, monsterStats, monsterName);
+    printf("\n");
 }
