@@ -203,7 +203,7 @@ int main(){
         while(protag.area == 0){
             //The player is given three options
             printf("\nYou are in a thick forest. What do you do?\n");
-            printf("1. Explore    2. Check Stats    3. Use items\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -238,7 +238,7 @@ int main(){
     do{
         while(protag.area == 1){
             printf("\nYou are surrounded by an endless cave system. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -269,7 +269,7 @@ int main(){
     do{
         while(protag.area == 2){
             printf("\nYou find yourself in a deserted village. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -300,7 +300,7 @@ int main(){
     do{
         while(protag.area == 3){
             printf("\nYou are lost in the billowing mist of the graveyard. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -331,7 +331,7 @@ int main(){
     do{
         while(protag.area == 4){
             printf("\nYou look around to find you are in a sweeping mountain range. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -362,7 +362,7 @@ int main(){
     do{
         while(protag.area == 5){
             printf("\nYou search your surroundings for a way out of the marsh. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -393,7 +393,7 @@ int main(){
     do{
         while(protag.area == 6){
             printf("\nThe blazing sun beats down on you as you move. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -424,7 +424,7 @@ int main(){
     do{
         while(protag.area == 7){
             printf("\nYou have arrived at the foot of the volcano, preparing for the final battle. What do you do?\n");
-            printf("1. Explore    2. Check Stats\n");
+            printf("1. Explore    2. Check Stats    3. Use Items\n");
 
             scanf(" %c", &keypress);
 
@@ -2592,7 +2592,6 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                     break;
                 case('4'):
                     if( protag->currentMana >= (protag->currentMana * .2)){
-                        protag->currentMana -= (protag->currentMana * .2);
 
                         //50-50 chance to to either heal/damage a little more or a little less than average
                         if( protag->level < 1){
@@ -2623,8 +2622,9 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                             //healedHP tracks the amount of health healed to inform the player
                             healedHP = (protag->maxHP * .5) + randMod + 1;
                             protag->currentHP += (protag->maxHP * .5) + randMod + 1;
-                            //This tracks how much mana is used
+                            //This tracks how much mana is used and takes it from the current mana
                             usedMana = (protag->currentMana * .2);
+                            protag->currentMana -= usedMana;
 
                             //If the heal goes over their max, their currentHP is set to maxHP and that difference is subtracted from healedHP
                             if(protag->currentHP > protag->maxHP){
@@ -2640,8 +2640,9 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                             damageBuff = protag->physicalPower + randMod + 1;
                             protag->physicalPower = (protag->physicalPower * 1.5) + .5 + randMod + 1;
                             damageBuff -= protag->physicalPower;
-                            //This tracks how much mana is used
+                            //This tracks how much mana is used and takes it from the current mana
                             usedMana = (protag->currentMana * .2);
+                            protag->currentMana -= usedMana;
 
                             printf("For the cost of %d Mana, you now do %d damage with a %d damage buff!\n\n", usedMana, protag->physicalPower, abs(damageBuff));
                         }
@@ -2649,8 +2650,9 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                             //This process is the same as the paladin's heal, just slightly weaker
                             healedHP = protag->maxHP * .33 + randMod + 1;
                             protag->currentHP += (protag->maxHP * .33) + randMod + 1;
-                            //This tracks how much mana is used
+                            //This tracks how much mana is used and takes it from the current mana
                             usedMana = (protag->currentMana * .2);
+                            protag->currentMana -= usedMana;
 
                             if(protag->currentHP > protag->maxHP){
                                 overHP = protag->currentHP - protag->maxHP;
@@ -2663,8 +2665,9 @@ void battleEncounter(charInformation *protag, int monsterStats[], char monsterNa
                             //This process is the same as the paladin's heal, just slightly stronger
                             healedHP = protag->maxHP * .66 + randMod + 1;
                             protag->currentHP += (protag->maxHP * .66) + randMod + 1;
-                            //This tracks how much mana is used
+                            //This tracks how much mana is used and takes it from the current mana
                             usedMana = (protag->currentMana * .2);
+                            protag->currentMana -= usedMana;
 
                             if(protag->currentHP > protag->maxHP){
                                 overHP = protag->currentHP - protag->maxHP;
